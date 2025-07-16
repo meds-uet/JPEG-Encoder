@@ -1,2 +1,2 @@
-## ***JPEG Encoder ***
+## ***JPEG Encoder***
 
