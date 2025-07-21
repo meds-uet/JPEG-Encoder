@@ -1,15 +1,13 @@
-// Copyright 2025 Maktab-e-Digital Systems Lahore.
-// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
-// SPDX-License-Identifier: Apache-2.0
-//
-// Description:
-//   - Stores encoded blocks and outputs them sequentially for FF checking.
-//   - Supports special "rollover_write" case to add delay after FF escaping.
-//   - FIFO depth: 16 entries.
-//    - Outputs valid flag and FIFO empty signal.
-//
-// Author:Navaal Noshi
-// Date:15th July,2025.
+/*
+--------------------------------------------------------------------------------
+Module: sync_fifo_ff 
+Description:
+  - Stores encoded blocks and outputs them sequentially for FF checking.
+  - Supports special "rollover_write" case to add delay after FF escaping.
+  - FIFO depth: 16 entries.
+  - Outputs valid flag and FIFO empty signal.
+--------------------------------------------------------------------------------
+*/
 
 `timescale 1ns / 1 ps
 
@@ -25,7 +23,9 @@ module sync_fifo_ff (
     output logic        rdata_valid
 );
 
+// --------------------------------------------------
 // FIFO memory and pointers
+// --------------------------------------------------
 logic [90:0] mem [15:0];        // FIFO memory: 16 entries of 91 bits
 logic [4:0] write_ptr, read_ptr; // Full pointer for comparison
 logic [3:0] write_addr, read_addr;
@@ -33,14 +33,20 @@ logic [3:0] write_addr, read_addr;
 assign write_addr = write_ptr[3:0];
 assign read_addr  = read_ptr[3:0];
 
+// --------------------------------------------------
 // FIFO empty logic
+// --------------------------------------------------
 assign fifo_empty = (write_ptr == read_ptr);
-  
+
+// --------------------------------------------------
 // Read enable: only allowed if FIFO is not empty
+// --------------------------------------------------
 logic read_enable;
 assign read_enable = read_req && !fifo_empty;
 
+// --------------------------------------------------
 // Write pointer logic with rollover handling
+// --------------------------------------------------
 always_ff @(posedge clk or posedge rst) begin
     if (rst)
         write_ptr <= 5'd0;
@@ -52,12 +58,17 @@ always_ff @(posedge clk or posedge rst) begin
     end
 end
 
+// --------------------------------------------------
 // FIFO write operation
+// --------------------------------------------------
 always_ff @(posedge clk) begin
     if (write_enable)
         mem[write_addr] <= write_data;
 end
+
+// --------------------------------------------------
 // Read pointer logic
+// --------------------------------------------------
 always_ff @(posedge clk or posedge rst) begin
     if (rst)
         read_ptr <= 5'd0;
@@ -65,17 +76,22 @@ always_ff @(posedge clk or posedge rst) begin
         read_ptr <= read_ptr + 5'd1;
 end
 
+// --------------------------------------------------
 // FIFO read operation
+// --------------------------------------------------
 always_ff @(posedge clk) begin
     if (read_enable)
         read_data <= mem[read_addr];
 end
 
+// --------------------------------------------------
 // Valid data flag generation
+// --------------------------------------------------
 always_ff @(posedge clk or posedge rst) begin
     if (rst)
         rdata_valid <= 1'b0;
     else
         rdata_valid <= read_enable;
 end
+
 endmodule

@@ -1,21 +1,16 @@
-// Copyright 2025 Maktab-e-Digital Systems Lahore.
-// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
-// SPDX-License-Identifier: Apache-2.0
-//
-// Description:
-//   This module combines Y, Cb, and Cr JPEG encoded bitstreams into a single
-//   32-bit JPEG output stream. It uses three FIFOs—one each for Y, Cb, and Cr—
-//   to buffer and multiplex encoded data. It also aligns data according to the
-//   number of remaining output register count (ORC) bits and applies necessary
-//   shifting and padding. The output of this module connects to the ff_checker
-//   module for byte stuffing (e.g., inserting 0x00 after 0xFF).
-//   The logic includes multiple pipelining stages and multiplexing to handle
-//   overlapping bitstreams and end-of-block signals. The module operates on a
-//   strict clocked pipeline to ensure timing alignment for JPEG formatting
-//
-// Author:Navaal Noshi
-// Date:12th July,2025.
-
+/* ---------------------------------------------------------------------------
+Module: fifo_out
+Description:
+    This module combines Y, Cb, and Cr JPEG encoded bitstreams into a single
+    32-bit JPEG output stream. It uses three FIFOs—one each for Y, Cb, and Cr—
+    to buffer and multiplex encoded data. It also aligns data according to the
+    number of remaining output register count (ORC) bits and applies necessary
+    shifting and padding. The output of this module connects to the ff_checker
+    module for byte stuffing (e.g., inserting 0x00 after 0xFF).
+    The logic includes multiple pipelining stages and multiplexing to handle
+    overlapping bitstreams and end-of-block signals. The module operates on a
+    strict clocked pipeline to ensure timing alignment for JPEG formatting.
+--------------------------------------------------------------------------- */
 `timescale 1ns / 100ps
 module fifo_out(
     input         clk,         // Clock input
@@ -27,7 +22,7 @@ module fifo_out(
     output logic [4:0]  orc_reg      // Output register for orc value
 );
     
-
+//==============================================================declaration===============================================================================================
 // logic for JPEG bitstream and orc values from pre_fifo
 logic  [31:0]  cb_JPEG_bitstream, cr_JPEG_bitstream, y_JPEG_bitstream;
 logic  [4:0]   cr_orc, cb_orc, y_orc;
@@ -107,7 +102,10 @@ logic cb_write_enable2 = !fifo_mux && cb_write_enable;
 logic [31:0] cb_bits_out = fifo_mux ? cb_bits_out2 : cb_bits_out1;
 logic cb_fifo_empty = fifo_mux ? cb_fifo_empty2 : cb_fifo_empty1;
 logic cb_out_enable = fifo_mux ? cb_out_enable2 : cb_out_enable1;
+//=============================================================================================================================================================
 
+
+//=====================================================================instance calll===========================================================================
     
 // Instance of pre_fifo module to get Y, Cb, Cr data and EOB signals
 pre_fifo u14(
@@ -185,6 +183,7 @@ sync_fifo_32 u17(
 .fifo_empty(y_fifo_empty),
 .rdata_valid(y_out_enable)
 );
+//=============================================================================================================================================================
 
 // Consolidated sequential logic for FIFO read requests, mux controls, and FIFO mux
 always_ff @(posedge clk) begin
