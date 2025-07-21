@@ -12,7 +12,8 @@
 //
 // Author:Navaal Noshi
 // Date:11th July,2025.
-timescale 1ns / 1ps
+
+timescale 1ns / 100ps
 
 module y_quantizer #(
     // Example: All quantization values = 1 for testing
