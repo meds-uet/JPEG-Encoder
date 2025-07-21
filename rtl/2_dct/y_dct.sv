@@ -21,7 +21,7 @@ module y_dct (
     output logic [10:0] Z15_final, Z16_final, Z17_final, Z18_final,
     output logic [10:0] Z21_final, Z22_final, Z23_final, Z24_final,
     output logic [10:0] Z25_final, Z26_final, Z27_final, Z28_final,
-    output logic [10:0] Z31_final, Z32_final, Z33_final, Z34_final, // Note: Typo here, should be Z34_final? Assuming Z34_final.
+    output logic [10:0] Z31_final, Z32_final, Z33_final, Z34_final, 
     output logic [10:0] Z35_final, Z36_final, Z37_final, Z38_final,
     output logic [10:0] Z41_final, Z42_final, Z43_final, Z44_final,
     output logic [10:0] Z45_final, Z46_final, Z47_final, Z48_final,
