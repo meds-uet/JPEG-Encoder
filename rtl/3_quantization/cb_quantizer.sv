@@ -10,7 +10,7 @@
 // Author:Navaal Noshi
 // Date: 16th July, 2025
 
-`timescale 1ns / 1ps
+`timescale 1ns / 100ps
 
 module cb_quantizer #(
     parameter int Q_MATRIX[0:7][0:7] = '{default: 1}
