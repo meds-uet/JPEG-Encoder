@@ -1,16 +1,15 @@
-
-
-/* This module converts the incoming Cr data.
-The incoming data is unsigned 8 bits, so the data is in the range of 0-255
-Unlike a typical DCT, the data is not subtracted by 128 to center it around 0.
-It is only required for the first row, and instead of subtracting 128 from each
-pixel value, a total value can be subtracted at the end of the first row/column multiply,
-involving the 8 pixel values and the 8 DCT matrix values.
-For the other 7 rows of the DCT matrix, the values in each row add up to 0,
-so it is not necessary to subtract 128 from each Y, Cb, and Cr pixel value.
-Then the Discrete Cosine Transform is performed by multiplying the 8x8 pixel block values
-by the 8x8 DCT matrix. */
-
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module performs a Discrete Cosine Transform (DCT) on 8x8 blocks of Cr (Chroma Red) data.
+//    It uses short integers for calculations and coefficients. Unlike typical DCTs,
+//    it handles the DC offset by a final subtraction on the first coefficient,
+//    rather than pre-subtracting 128 from each input pixel.
+//
+// Author:Rameen
+// Date:12th July,2025.
 
 `timescale 1ns / 100ps
 
