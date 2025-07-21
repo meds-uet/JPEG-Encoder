@@ -3,15 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Description:
-//   This module performs quantization on an 8x8 block of luminance (Y) values
-//   after 2D Discrete Cosine Transform (DCT). Quantization reduces the precision
-//   of DCT coefficients, enabling lossy compression for JPEG encoding.
-//   Instead of dividing each DCT coefficient by the corresponding value in a 
-//   quantization matrix (Q), this module precomputes reciprocals scaled by 4096,
-//   and performs multiplication followed by right-shift to approximate division.
+//   This module performs a Discrete Cosine Transform (DCT) on 8x8 blocks of Y (Luma) data.
+//   It uses short integers for calculations and coefficients. Unlike typical DCTs,
+//   it handles the DC offset by a final subtraction on the first coefficient,
+//   rather than pre-subtracting 128 from each input pixel.
 //
 // Author:Rameen
 // Date:11th July,2025.
+
 `timescale 1ns / 100ps
 module y_dct (
     input logic clk,
