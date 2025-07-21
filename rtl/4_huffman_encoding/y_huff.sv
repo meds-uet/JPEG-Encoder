@@ -1,16 +1,14 @@
-/*----------------------------------------------------------------------------------
-Module Name : y_huff
-Description : This module performs Huffman encoding on the quantized 8x8 DCT coefficients 
-of the Y (luminance) component in a JPEG image. It takes in DC and AC coefficients, 
-computes the differences for DC values, determines the category and value for both 
-DC and AC components, and generates corresponding Huffman codes based on 
-standard JPEG Huffman tables. The module handles zero-run length encoding for AC 
-coefficients and appends end-of-block (EOB) markers as needed. 
-
-The output is a variable-length Huffman-encoded bitstream for the Y component,
-ready to be packed and written to the JPEG bitstream by subsequent modules.
-The module is pipelined and synchronized using control signals for efficient encoding.
---------------------------------------------------------------------------------*/
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module performs Huffman encoding for Y (Luma) data. It takes the quantized
+//    DCT coefficients for an 8x8 Y block and generates the corresponding variable-length
+//    Huffman codes, suitable for bitstream compression.
+//
+// Author:Rameen
+// Date:15th July,2025.
 `timescale 1ns / 100ps
 
 module y_huff (
