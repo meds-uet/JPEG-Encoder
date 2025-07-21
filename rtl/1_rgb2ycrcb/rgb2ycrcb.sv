@@ -14,7 +14,7 @@
 // Author:Navaal Noshi
 // Date:12th July,2025.
 
-`timescale 1ns / 1ps
+`timescale 1ns / 100ps
 
 module rgb2ycrcb (
     input  logic        clk,
