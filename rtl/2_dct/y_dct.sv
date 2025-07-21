@@ -1,3 +1,17 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//   This module performs quantization on an 8x8 block of luminance (Y) values
+//   after 2D Discrete Cosine Transform (DCT). Quantization reduces the precision
+//   of DCT coefficients, enabling lossy compression for JPEG encoding.
+//   Instead of dividing each DCT coefficient by the corresponding value in a 
+//   quantization matrix (Q), this module precomputes reciprocals scaled by 4096,
+//   and performs multiplication followed by right-shift to approximate division.
+//
+// Author:Rameen
+// Date:11th July,2025.
 `timescale 1ns / 100ps
 module y_dct (
     input logic clk,
