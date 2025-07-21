@@ -1,13 +1,15 @@
-/*----------------------------------------------------------------------------------
-Module Name : cr_huff
- Description : This module performs Huffman encoding for the Cr (chrominance-red) 
- component in a JPEG image compression pipeline. It accepts a set of 64 quantized 
- Cr DCT coefficients arranged in an 8x8 block and encodes them using JPEG baseline 
- Huffman coding. The output is a serialized 32-bit JPEG bitstream representing 
- encoded symbols. The module manages run-length encoding for zero-value AC 
- coefficients, generates end-of-block (EOB) markers, and maintains output-ready 
- signaling for downstream data handling.
-----------------------------------------------------------------------------------*/
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module performs Huffman encoding for Cr (Chroma Red) data. It takes the quantized
+//    DCT coefficients for an 8x8 Cr block and generates the corresponding variable-length
+//    Huffman codes, suitable for bitstream compression.
+//
+// Author:Rameen
+// Date:16th July,2025.
+
 `timescale 1ns / 100ps
 module cr_huff (
 	input  logic        clk,       // Clock signal
