@@ -1,14 +1,15 @@
 // Copyright 2025 Maktab-e-Digital Systems Lahore.
 // Licensed under the Apache License, Version 2.0, see LICENSE file for details.
 // SPDX-License-Identifier: Apache-2.0
+//
 // Description:
 //   typically obtained after applying a 2D Discrete Cosine Transform (DCT).
 //   It replaces division with multiplication using precomputed scale factors
 //   (4096 / Q[i][j]), followed by a right shift of 12 bits (i.e., division by 4096).
+//
 // Author:Navaal Noshi
-// Date:11th July,2025..
-
-`timescale 1ns / 1ps
+// Date:11th July,2025.
+`timescale 1ns / 100ps
 
 module cr_quantizer #(
     parameter int Q_MATRIX[8][8] = '{default: 1}
