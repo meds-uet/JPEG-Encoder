@@ -1,3 +1,15 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module performs a Discrete Cosine Transform (DCT) on 8x8 blocks of Cb (Chroma Blue) data.
+//    It uses short integers for calculations and coefficients. Unlike typical DCTs,
+//    it handles the DC offset by a final subtraction on the first coefficient,
+//    rather than pre-subtracting 128 from each input pixel.
+//
+// Author:Rameen
+// Date:11th July,2025.
 `timescale 1ns / 100ps
 
 module cb_dct (
