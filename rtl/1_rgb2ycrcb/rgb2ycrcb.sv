@@ -25,9 +25,7 @@ module rgb2ycrcb (
     output logic        enable_out
 );
 
-    // -------------------------------------------------------------------------
     // Fixed-point coefficients scaled by 2^14 = 16384
-    // -------------------------------------------------------------------------
     localparam logic [14:0] Y1  = 15'd9798;   // 0.299  * 16384
     localparam logic [14:0] Y2  = 15'd19235;  // 0.587  * 16384
     localparam logic [14:0] Y3  = 15'd3730;   // 0.114  * 16384
@@ -43,9 +41,7 @@ module rgb2ycrcb (
     // Cb/Cr offset: 128 * 16384
     localparam logic [22:0] OFFSET = 23'd2097152;
 
-    // -------------------------------------------------------------------------
     // Internal signals
-    // -------------------------------------------------------------------------
     logic [7:0] R, G, B;
 
     logic [22:0] y_r, y_g, y_b, y_sum;
@@ -59,9 +55,8 @@ module rgb2ycrcb (
 
     assign data_out = {cr_out, cb_out, y_out};
 
-    // -------------------------------------------------------------------------
+
     // Stage 1: Latch RGB inputs
-    // -------------------------------------------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             R <= 0; G <= 0; B <= 0;
@@ -72,9 +67,8 @@ module rgb2ycrcb (
         end
     end
 
-    // -------------------------------------------------------------------------
+    
     // Stage 2: Multiply and Accumulate
-    // -------------------------------------------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             y_sum  <= 0;
@@ -101,9 +95,8 @@ module rgb2ycrcb (
         end
     end
 
-    // -------------------------------------------------------------------------
+ 
     // Stage 3: Round and Clamp
-    // -------------------------------------------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             y_out  <= 0;
@@ -122,9 +115,7 @@ module rgb2ycrcb (
         end
     end
 
-    // -------------------------------------------------------------------------
     // Enable pipeline alignment
-    // -------------------------------------------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             enable_d1 <= 0;
