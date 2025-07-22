@@ -55,7 +55,6 @@ module rgb2ycrcb (
 
     assign data_out = {cr_out, cb_out, y_out};
 
-
     // Stage 1: Latch RGB inputs
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
@@ -66,7 +65,6 @@ module rgb2ycrcb (
             B <= data_in[23:16];
         end
     end
-
     
     // Stage 2: Multiply and Accumulate
     always_ff @(posedge clk or posedge rst) begin
@@ -95,7 +93,6 @@ module rgb2ycrcb (
         end
     end
 
- 
     // Stage 3: Round and Clamp
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
