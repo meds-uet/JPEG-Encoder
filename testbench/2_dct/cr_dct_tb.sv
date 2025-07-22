@@ -1,4 +1,26 @@
-`timescale 1ns / 1ps
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: cr_dct_tb
+// Description:
+//    This testbench is designed to verify the functionality of the `cr_dct` module,
+//    which performs the Discrete Cosine Transform on 8x8 blocks of Cr (Chroma Red) data.
+//    It establishes a clock with a 100ns period, manages reset, and drives 8-bit
+//    `data_in` samples into the DUT to simulate incoming pixel data blocks.
+//
+//    The `cr_dct_tb` monitors the 64 individual 11-bit signed output coefficients
+//    (`Z11_final` through `Z88_final`) and the `output_enable` flag from the `cr_dct` DUT.
+//    It applies a simple incrementing data pattern for an 8x8 block. The testbench
+//    ensures that adequate simulation time is allowed for the DUT's internal
+//    pipeline to complete its calculations and assert the `output_enable` signal.
+//    Upon `output_enable` assertion, the testbench displays all 64 calculated
+//    DCT coefficients for visual inspection and verification.
+//
+// Author:Rameen
+// Date:21st July,2025.
+
+`timescale 1ns / 100ps
 
 module cr_dct_tb;
 
