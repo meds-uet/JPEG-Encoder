@@ -169,10 +169,4 @@ module y_huff_tb;
                  $time, rst, enable, data_ready, output_reg_count, end_of_block_output, end_of_block_empty, JPEG_bitstream);
     end
 
-    // Dump variables for waveform analysis
-    initial begin
-        $dumpfile("y_huff_tb.vcd");
-        $dumpvars(0, y_huff_tb);
-    end
-
 endmodule
