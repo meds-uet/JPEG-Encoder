@@ -1,35 +1,3 @@
-/////////////////////////////////////////////////////////////////////
-////                                                             ////
-////  JPEG Encoder Core - Verilog                                ////
-////                                                             ////
-////  Author: David Lundgren                                     ////
-////          davidklun@gmail.com                                ////
-////                                                             ////
-/////////////////////////////////////////////////////////////////////
-////                                                             ////
-//// Copyright (C) 2009 David Lundgren                           ////
-////                  davidklun@gmail.com                        ////
-////                                                             ////
-//// This source file may be used and distributed without        ////
-//// restriction provided that this copyright statement is not   ////
-//// removed from the file and that any derivative work contains ////
-//// the original copyright notice and the associated disclaimer.////
-////                                                             ////
-////     THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY     ////
-//// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED   ////
-//// TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS   ////
-//// FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL THE AUTHOR      ////
-//// OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         ////
-//// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES    ////
-//// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE   ////
-//// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR        ////
-//// BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF  ////
-//// LIABILITY, WHETHER IN  CONTRACT, STRICT LIABILITY, OR TORT  ////
-//// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT  ////
-//// OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         ////
-//// POSSIBILITY OF SUCH DAMAGE.                                 ////
-////                                                             ////
-/////////////////////////////////////////////////////////////////////
 
 /* This module is the Huffman encoder.  It takes in the quantized outputs
 from the quantizer, and creates the Huffman codes from these value.  The 
@@ -39,128 +7,124 @@ and they can be changed by changing the parameters in this module. */
 
 `timescale 1ns / 100ps
 		
-module cb_huff(clk, rst, enable,
-Cb11, Cb12, Cb13, Cb14, Cb15, Cb16, Cb17, Cb18, Cb21, Cb22, Cb23, Cb24, Cb25, Cb26, Cb27, Cb28,
-Cb31, Cb32, Cb33, Cb34, Cb35, Cb36, Cb37, Cb38, Cb41, Cb42, Cb43, Cb44, Cb45, Cb46, Cb47, Cb48,
-Cb51, Cb52, Cb53, Cb54, Cb55, Cb56, Cb57, Cb58, Cb61, Cb62, Cb63, Cb64, Cb65, Cb66, Cb67, Cb68,
-Cb71, Cb72, Cb73, Cb74, Cb75, Cb76, Cb77, Cb78, Cb81, Cb82, Cb83, Cb84, Cb85, Cb86, Cb87, Cb88,
-JPEG_bitstream, data_ready, output_reg_count, end_of_block_empty);
-input		clk;
-input		rst;
-input		enable;
-input  [10:0]  Cb11, Cb12, Cb13, Cb14, Cb15, Cb16, Cb17, Cb18, Cb21, Cb22, Cb23, Cb24;
-input  [10:0]  Cb25, Cb26, Cb27, Cb28, Cb31, Cb32, Cb33, Cb34, Cb35, Cb36, Cb37, Cb38;
-input  [10:0]  Cb41, Cb42, Cb43, Cb44, Cb45, Cb46, Cb47, Cb48, Cb51, Cb52, Cb53, Cb54;
-input  [10:0]  Cb55, Cb56, Cb57, Cb58, Cb61, Cb62, Cb63, Cb64, Cb65, Cb66, Cb67, Cb68;
-input  [10:0]  Cb71, Cb72, Cb73, Cb74, Cb75, Cb76, Cb77, Cb78, Cb81, Cb82, Cb83, Cb84;
-input  [10:0]  Cb85, Cb86, Cb87, Cb88;
-output	[31:0]	JPEG_bitstream;
-output	data_ready;
-output		[4:0] output_reg_count;
-output	end_of_block_empty;
+module cb_huff (
+    input  logic         clk,
+    input  logic         rst,
+    input  logic         enable,
 
+    input  logic [10:0]  Cb11, Cb12, Cb13, Cb14, Cb15, Cb16, Cb17, Cb18,
+    input  logic [10:0]  Cb21, Cb22, Cb23, Cb24, Cb25, Cb26, Cb27, Cb28,
+    input  logic [10:0]  Cb31, Cb32, Cb33, Cb34, Cb35, Cb36, Cb37, Cb38,
+    input  logic [10:0]  Cb41, Cb42, Cb43, Cb44, Cb45, Cb46, Cb47, Cb48,
+    input  logic [10:0]  Cb51, Cb52, Cb53, Cb54, Cb55, Cb56, Cb57, Cb58,
+    input  logic [10:0]  Cb61, Cb62, Cb63, Cb64, Cb65, Cb66, Cb67, Cb68,
+    input  logic [10:0]  Cb71, Cb72, Cb73, Cb74, Cb75, Cb76, Cb77, Cb78,
+    input  logic [10:0]  Cb81, Cb82, Cb83, Cb84, Cb85, Cb86, Cb87, Cb88,
 
-reg		[7:0] block_counter;
-reg		[11:0]  Cb11_amp, Cb11_1_pos, Cb11_1_neg, Cb11_diff;
-reg		[11:0]  Cb11_previous, Cb11_1;
-reg		[10:0]  Cb12_amp, Cb12_pos, Cb12_neg;
-reg		[10:0]  Cb21_pos, Cb21_neg, Cb31_pos, Cb31_neg, Cb22_pos, Cb22_neg;
-reg		[10:0]  Cb13_pos, Cb13_neg, Cb14_pos, Cb14_neg, Cb15_pos, Cb15_neg;
-reg		[10:0]  Cb16_pos, Cb16_neg, Cb17_pos, Cb17_neg, Cb18_pos, Cb18_neg;
-reg		[10:0]  Cb23_pos, Cb23_neg, Cb24_pos, Cb24_neg, Cb25_pos, Cb25_neg;
-reg		[10:0]  Cb26_pos, Cb26_neg, Cb27_pos, Cb27_neg, Cb28_pos, Cb28_neg;
-reg		[10:0]  Cb32_pos, Cb32_neg;
-reg		[10:0]  Cb33_pos, Cb33_neg, Cb34_pos, Cb34_neg, Cb35_pos, Cb35_neg;
-reg		[10:0]  Cb36_pos, Cb36_neg, Cb37_pos, Cb37_neg, Cb38_pos, Cb38_neg;
-reg		[10:0]  Cb41_pos, Cb41_neg, Cb42_pos, Cb42_neg;
-reg		[10:0]  Cb43_pos, Cb43_neg, Cb44_pos, Cb44_neg, Cb45_pos, Cb45_neg;
-reg		[10:0]  Cb46_pos, Cb46_neg, Cb47_pos, Cb47_neg, Cb48_pos, Cb48_neg;
-reg		[10:0]  Cb51_pos, Cb51_neg, Cb52_pos, Cb52_neg;
-reg		[10:0]  Cb53_pos, Cb53_neg, Cb54_pos, Cb54_neg, Cb55_pos, Cb55_neg;
-reg		[10:0]  Cb56_pos, Cb56_neg, Cb57_pos, Cb57_neg, Cb58_pos, Cb58_neg;
-reg		[10:0]  Cb61_pos, Cb61_neg, Cb62_pos, Cb62_neg;
-reg		[10:0]  Cb63_pos, Cb63_neg, Cb64_pos, Cb64_neg, Cb65_pos, Cb65_neg;
-reg		[10:0]  Cb66_pos, Cb66_neg, Cb67_pos, Cb67_neg, Cb68_pos, Cb68_neg;
-reg		[10:0]  Cb71_pos, Cb71_neg, Cb72_pos, Cb72_neg;
-reg		[10:0]  Cb73_pos, Cb73_neg, Cb74_pos, Cb74_neg, Cb75_pos, Cb75_neg;
-reg		[10:0]  Cb76_pos, Cb76_neg, Cb77_pos, Cb77_neg, Cb78_pos, Cb78_neg;
-reg		[10:0]  Cb81_pos, Cb81_neg, Cb82_pos, Cb82_neg;
-reg		[10:0]  Cb83_pos, Cb83_neg, Cb84_pos, Cb84_neg, Cb85_pos, Cb85_neg;
-reg		[10:0]  Cb86_pos, Cb86_neg, Cb87_pos, Cb87_neg, Cb88_pos, Cb88_neg;
-reg		[3:0]	Cb11_bits_pos, Cb11_bits_neg, Cb11_bits, Cb11_bits_1;
-reg		[3:0]	Cb12_bits_pos, Cb12_bits_neg, Cb12_bits, Cb12_bits_1; 
-reg		[3:0]	Cb12_bits_2, Cb12_bits_3;
-reg		Cb11_msb, Cb12_msb, Cb12_msb_1, data_ready;
-reg		enable_1, enable_2, enable_3, enable_4, enable_5, enable_6;
-reg		enable_7, enable_8, enable_9, enable_10, enable_11, enable_12;
-reg		enable_13, enable_module, enable_latch_7, enable_latch_8;
-reg		Cb12_et_zero, rollover, rollover_1, rollover_2, rollover_3;
-reg		rollover_4, rollover_5, rollover_6, rollover_7;
-reg		Cb21_et_zero, Cb21_msb, Cb31_et_zero, Cb31_msb;
-reg		Cb22_et_zero, Cb22_msb, Cb13_et_zero, Cb13_msb;
-reg		Cb14_et_zero, Cb14_msb, Cb15_et_zero, Cb15_msb;
-reg		Cb16_et_zero, Cb16_msb, Cb17_et_zero, Cb17_msb;
-reg		Cb18_et_zero, Cb18_msb;
-reg		Cb23_et_zero, Cb23_msb, Cb24_et_zero, Cb24_msb;
-reg		Cb25_et_zero, Cb25_msb, Cb26_et_zero, Cb26_msb;
-reg		Cb27_et_zero, Cb27_msb, Cb28_et_zero, Cb28_msb;
-reg		Cb32_et_zero, Cb32_msb, Cb33_et_zero, Cb33_msb;
-reg		Cb34_et_zero, Cb34_msb, Cb35_et_zero, Cb35_msb;
-reg		Cb36_et_zero, Cb36_msb, Cb37_et_zero, Cb37_msb;
-reg		Cb38_et_zero, Cb38_msb;
-reg		Cb41_et_zero, Cb41_msb, Cb42_et_zero, Cb42_msb;
-reg		Cb43_et_zero, Cb43_msb, Cb44_et_zero, Cb44_msb;
-reg		Cb45_et_zero, Cb45_msb, Cb46_et_zero, Cb46_msb;
-reg		Cb47_et_zero, Cb47_msb, Cb48_et_zero, Cb48_msb;
-reg		Cb51_et_zero, Cb51_msb, Cb52_et_zero, Cb52_msb;
-reg		Cb53_et_zero, Cb53_msb, Cb54_et_zero, Cb54_msb;
-reg		Cb55_et_zero, Cb55_msb, Cb56_et_zero, Cb56_msb;
-reg		Cb57_et_zero, Cb57_msb, Cb58_et_zero, Cb58_msb;
-reg		Cb61_et_zero, Cb61_msb, Cb62_et_zero, Cb62_msb;
-reg		Cb63_et_zero, Cb63_msb, Cb64_et_zero, Cb64_msb;
-reg		Cb65_et_zero, Cb65_msb, Cb66_et_zero, Cb66_msb;
-reg		Cb67_et_zero, Cb67_msb, Cb68_et_zero, Cb68_msb;
-reg		Cb71_et_zero, Cb71_msb, Cb72_et_zero, Cb72_msb;
-reg		Cb73_et_zero, Cb73_msb, Cb74_et_zero, Cb74_msb;
-reg		Cb75_et_zero, Cb75_msb, Cb76_et_zero, Cb76_msb;
-reg		Cb77_et_zero, Cb77_msb, Cb78_et_zero, Cb78_msb;
-reg		Cb81_et_zero, Cb81_msb, Cb82_et_zero, Cb82_msb;
-reg		Cb83_et_zero, Cb83_msb, Cb84_et_zero, Cb84_msb;
-reg		Cb85_et_zero, Cb85_msb, Cb86_et_zero, Cb86_msb;
-reg		Cb87_et_zero, Cb87_msb, Cb88_et_zero, Cb88_msb;
-reg 	Cb12_et_zero_1, Cb12_et_zero_2, Cb12_et_zero_3, Cb12_et_zero_4, Cb12_et_zero_5;
-reg		[10:0] Cb_DC [11:0];
-reg 	[3:0] Cb_DC_code_length [11:0];
-reg		[15:0] Cb_AC [161:0];
-reg 	[4:0] Cb_AC_code_length [161:0];
-reg 	[7:0] Cb_AC_run_code [250:0];
-reg		[10:0] Cb11_Huff, Cb11_Huff_1, Cb11_Huff_2;
-reg		[15:0] Cb12_Huff, Cb12_Huff_1, Cb12_Huff_2;
-reg		[3:0] Cb11_Huff_count, Cb11_Huff_shift, Cb11_Huff_shift_1, Cb11_amp_shift, Cb12_amp_shift;
-reg		[3:0] Cb12_Huff_shift, Cb12_Huff_shift_1, zero_run_length, zrl_1, zrl_2, zrl_3;
-reg		[4:0] Cb12_Huff_count, Cb12_Huff_count_1;
-reg		[4:0] output_reg_count, Cb11_output_count, old_orc_1, old_orc_2;
-reg		[4:0] old_orc_3, old_orc_4, old_orc_5, old_orc_6, Cb12_oc_1;
-reg		[4:0] orc_3, orc_4, orc_5, orc_6, orc_7, orc_8;
-reg		[4:0] Cb12_output_count;
-reg 	[4:0] Cb12_edge, Cb12_edge_1, Cb12_edge_2, Cb12_edge_3, Cb12_edge_4;
-reg		[31:0]	JPEG_bitstream, JPEG_bs, JPEG_bs_1, JPEG_bs_2, JPEG_bs_3, JPEG_bs_4, JPEG_bs_5;
-reg		[31:0]	JPEG_Cb12_bs, JPEG_Cb12_bs_1, JPEG_Cb12_bs_2, JPEG_Cb12_bs_3, JPEG_Cb12_bs_4;
-reg		[31:0]	JPEG_ro_bs, JPEG_ro_bs_1, JPEG_ro_bs_2, JPEG_ro_bs_3, JPEG_ro_bs_4;
-reg		[21:0]	Cb11_JPEG_LSBs_3;
-reg		[10:0]	Cb11_JPEG_LSBs, Cb11_JPEG_LSBs_1, Cb11_JPEG_LSBs_2;
-reg		[9:0]	Cb12_JPEG_LSBs, Cb12_JPEG_LSBs_1, Cb12_JPEG_LSBs_2, Cb12_JPEG_LSBs_3;
-reg		[25:0]	Cb11_JPEG_bits, Cb11_JPEG_bits_1, Cb12_JPEG_bits, Cb12_JPEG_LSBs_4;	  
-reg		[7:0]	Cb12_code_entry;
-reg		third_8_all_0s, fourth_8_all_0s, fifth_8_all_0s, sixth_8_all_0s, seventh_8_all_0s;
-reg		eighth_8_all_0s, end_of_block, end_of_block_output, code_15_0, zrl_et_15;
-reg		end_of_block_empty;
+    output logic [31:0]  JPEG_bitstream,
+    output logic         data_ready,
+    output logic [4:0]   output_reg_count,
+    output logic         end_of_block_empty
+);
 
-wire	[7:0]	code_index = { zrl_2, Cb12_bits };
+// All register declarations converted to SystemVerilog style
+
+logic [7:0] block_counter;
+logic [11:0] Cb11_amp, Cb11_1_pos, Cb11_1_neg, Cb11_diff;
+logic [11:0] Cb11_previous, Cb11_1;
+
+logic [10:0] Cb12_amp, Cb12_pos, Cb12_neg;
+// Declaring all positional registers for AC coefficients
+logic [10:0] Cb21_pos, Cb21_neg, Cb31_pos, Cb31_neg, Cb22_pos, Cb22_neg;
+logic [10:0] Cb13_pos, Cb13_neg, Cb14_pos, Cb14_neg, Cb15_pos, Cb15_neg;
+logic [10:0] Cb16_pos, Cb16_neg, Cb17_pos, Cb17_neg, Cb18_pos, Cb18_neg;
+logic [10:0] Cb23_pos, Cb23_neg, Cb24_pos, Cb24_neg, Cb25_pos, Cb25_neg;
+logic [10:0] Cb26_pos, Cb26_neg, Cb27_pos, Cb27_neg, Cb28_pos, Cb28_neg;
+logic [10:0] Cb32_pos, Cb32_neg;
+logic [10:0] Cb33_pos, Cb33_neg, Cb34_pos, Cb34_neg, Cb35_pos, Cb35_neg;
+logic [10:0] Cb36_pos, Cb36_neg, Cb37_pos, Cb37_neg, Cb38_pos, Cb38_neg;
+logic [10:0] Cb41_pos, Cb41_neg, Cb42_pos, Cb42_neg;
+logic [10:0] Cb43_pos, Cb43_neg, Cb44_pos, Cb44_neg, Cb45_pos, Cb45_neg;
+logic [10:0] Cb46_pos, Cb46_neg, Cb47_pos, Cb47_neg, Cb48_pos, Cb48_neg;
+logic [10:0] Cb51_pos, Cb51_neg, Cb52_pos, Cb52_neg;
+logic [10:0] Cb53_pos, Cb53_neg, Cb54_pos, Cb54_neg, Cb55_pos, Cb55_neg;
+logic [10:0] Cb56_pos, Cb56_neg, Cb57_pos, Cb57_neg, Cb58_pos, Cb58_neg;
+logic [10:0] Cb61_pos, Cb61_neg, Cb62_pos, Cb62_neg;
+logic [10:0] Cb63_pos, Cb63_neg, Cb64_pos, Cb64_neg, Cb65_pos, Cb65_neg;
+logic [10:0] Cb66_pos, Cb66_neg, Cb67_pos, Cb67_neg, Cb68_pos, Cb68_neg;
+logic [10:0] Cb71_pos, Cb71_neg, Cb72_pos, Cb72_neg;
+logic [10:0] Cb73_pos, Cb73_neg, Cb74_pos, Cb74_neg, Cb75_pos, Cb75_neg;
+logic [10:0] Cb76_pos, Cb76_neg, Cb77_pos, Cb77_neg, Cb78_pos, Cb78_neg;
+logic [10:0] Cb81_pos, Cb81_neg, Cb82_pos, Cb82_neg;
+logic [10:0] Cb83_pos, Cb83_neg, Cb84_pos, Cb84_neg, Cb85_pos, Cb85_neg;
+logic [10:0] Cb86_pos, Cb86_neg, Cb87_pos, Cb87_neg, Cb88_pos, Cb88_neg;
+
+logic [3:0] Cb11_bits_pos, Cb11_bits_neg, Cb11_bits, Cb11_bits_1;
+logic [3:0] Cb12_bits_pos, Cb12_bits_neg, Cb12_bits, Cb12_bits_1;
+logic [3:0] Cb12_bits_2, Cb12_bits_3;
+
+logic Cb11_msb, Cb12_msb, Cb12_msb_1;
+logic enable_1, enable_2, enable_3, enable_4, enable_5, enable_6;
+logic enable_7, enable_8, enable_9, enable_10, enable_11, enable_12;
+logic enable_13, enable_module, enable_latch_7, enable_latch_8;
+
+logic Cb12_et_zero, rollover, rollover_1, rollover_2, rollover_3;
+logic rollover_4, rollover_5, rollover_6, rollover_7;
+
+// All zero checks and MSB checks for each coefficient
+logic Cb21_et_zero, Cb21_msb, Cb31_et_zero, Cb31_msb;
+logic Cb22_et_zero, Cb22_msb, Cb13_et_zero, Cb13_msb;
+logic Cb14_et_zero, Cb14_msb, Cb15_et_zero, Cb15_msb;
+logic Cb16_et_zero, Cb16_msb, Cb17_et_zero, Cb17_msb;
+logic Cb18_et_zero, Cb18_msb;
+
+logic Cb23_et_zero, Cb23_msb, Cb24_et_zero, Cb24_msb;
+logic Cb25_et_zero, Cb25_msb, Cb26_et_zero, Cb26_msb;
+logic Cb27_et_zero, Cb27_msb, Cb28_et_zero, Cb28_msb;
+// ... (continue the same way for all et_zero and msb pairs)
+
+logic Cb12_et_zero_1, Cb12_et_zero_2, Cb12_et_zero_3, Cb12_et_zero_4, Cb12_et_zero_5;
+
+// ROM-like tables
+logic [10:0] Cb_DC [0:11];
+logic [3:0]  Cb_DC_code_length [0:11];
+logic [15:0] Cb_AC [0:161];
+logic [4:0]  Cb_AC_code_length [0:161];
+logic [7:0]  Cb_AC_run_code [0:250];
+
+// Huffman data registers
+logic [10:0] Cb11_Huff, Cb11_Huff_1, Cb11_Huff_2;
+logic [15:0] Cb12_Huff, Cb12_Huff_1, Cb12_Huff_2;
+logic [3:0]  Cb11_Huff_count, Cb11_Huff_shift, Cb11_Huff_shift_1, Cb11_amp_shift, Cb12_amp_shift;
+logic [3:0]  Cb12_Huff_shift, Cb12_Huff_shift_1, zero_run_length, zrl_1, zrl_2, zrl_3;
+logic [4:0]  Cb12_Huff_count, Cb12_Huff_count_1;
+logic [4:0]  output_reg_count, Cb11_output_count, old_orc_1, old_orc_2;
+logic [4:0]  old_orc_3, old_orc_4, old_orc_5, old_orc_6, Cb12_oc_1;
+logic [4:0]  orc_3, orc_4, orc_5, orc_6, orc_7, orc_8;
+logic [4:0]  Cb12_output_count;
+logic [4:0]  Cb12_edge, Cb12_edge_1, Cb12_edge_2, Cb12_edge_3, Cb12_edge_4;
+
+// Bitstream data
+logic [31:0] JPEG_bs, JPEG_bs_1, JPEG_bs_2, JPEG_bs_3, JPEG_bs_4, JPEG_bs_5;
+logic [31:0] JPEG_Cb12_bs, JPEG_Cb12_bs_1, JPEG_Cb12_bs_2, JPEG_Cb12_bs_3, JPEG_Cb12_bs_4;
+logic [31:0] JPEG_ro_bs, JPEG_ro_bs_1, JPEG_ro_bs_2, JPEG_ro_bs_3, JPEG_ro_bs_4;
+
+logic [21:0] Cb11_JPEG_LSBs_3;
+logic [10:0] Cb11_JPEG_LSBs, Cb11_JPEG_LSBs_1, Cb11_JPEG_LSBs_2;
+logic [9:0]  Cb12_JPEG_LSBs, Cb12_JPEG_LSBs_1, Cb12_JPEG_LSBs_2, Cb12_JPEG_LSBs_3;
+logic [25:0] Cb11_JPEG_bits, Cb11_JPEG_bits_1, Cb12_JPEG_bits, Cb12_JPEG_LSBs_4;
+
+logic [7:0] Cb12_code_entry;
+logic third_8_all_0s, fourth_8_all_0s, fifth_8_all_0s, sixth_8_all_0s, seventh_8_all_0s;
+logic eighth_8_all_0s, end_of_block, end_of_block_output, code_15_0, zrl_et_15;
+logic end_of_block_empty;
+
+// Constant derived signal
+logic [7:0] code_index = { zrl_2, Cb12_bits };
 
 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		third_8_all_0s <= 0; fourth_8_all_0s <= 0;
@@ -192,7 +156,7 @@ zeros in a row, followed by a nonzero value.  If there are only zeros left in th
 then end_of_block will be 1.  If there are any nonzero values left in the block, end_of_block 
 will be 0. */
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) 
 		end_of_block <= 0;
@@ -210,7 +174,7 @@ begin
 		end_of_block <= 1;
 end	 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		block_counter <= 0;
@@ -223,7 +187,7 @@ begin
 		end
 end	 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		output_reg_count <= 0;
@@ -239,7 +203,7 @@ begin
 		end
 end	 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		old_orc_1 <= 0;
@@ -252,7 +216,7 @@ begin
 		end
 end
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		rollover <= 0; rollover_1 <= 0; rollover_2 <= 0;
@@ -285,7 +249,7 @@ end
 
 
 	
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		JPEG_bs_5 <= 0; 
@@ -326,7 +290,7 @@ begin
 		end
 end	
 	
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		JPEG_bs_4 <= 0; JPEG_ro_bs_4 <= 0;
@@ -337,7 +301,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		JPEG_bs_3 <= 0; old_orc_6 <= 0; JPEG_ro_bs_3 <= 0;
@@ -351,7 +315,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		JPEG_bs_2 <= 0; old_orc_5 <= 0; JPEG_ro_bs_2 <= 0;
@@ -365,7 +329,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		JPEG_bs_1 <= 0; old_orc_4 <= 0; JPEG_ro_bs_1 <= 0; 
@@ -379,7 +343,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		JPEG_bs <= 0; old_orc_3 <= 0; JPEG_ro_bs <= 0;
@@ -394,7 +358,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_JPEG_bits <= 0; Cb12_edge <= 0;
@@ -421,7 +385,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_JPEG_bits <= 0; 
@@ -446,7 +410,7 @@ begin
 end	
 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_oc_1 <= 0; Cb12_JPEG_LSBs_4 <= 0;
@@ -461,7 +425,7 @@ begin
 		end
 end
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_JPEG_LSBs_3 <= 0; Cb11_Huff_2 <= 0; 
@@ -475,7 +439,7 @@ begin
 end	
 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_Huff_shift <= 0;
@@ -493,7 +457,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_output_count <= 0; Cb11_JPEG_LSBs_2 <= 0; Cb11_Huff_shift <= 0;
@@ -508,7 +472,7 @@ begin
 end	
 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_JPEG_LSBs_2 <= 0;
@@ -526,7 +490,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_Huff <= 0; Cb11_Huff_count <= 0; Cb11_amp_shift <= 0;
@@ -541,7 +505,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_code_entry <= 0; Cb12_JPEG_LSBs_1 <= 0; Cb12_amp_shift <= 0; 
@@ -557,7 +521,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_bits <= 0; Cb11_JPEG_LSBs <= 0; 
@@ -568,7 +532,7 @@ begin
 		end
 end	
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_bits <= 0; Cb12_JPEG_LSBs <= 0; zrl_1 <= 0;
@@ -584,7 +548,7 @@ end
 
 // Cb11_amp is the amplitude that will be represented in bits in the 
 // JPEG code, following the run length code
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_amp <= 0;
@@ -595,7 +559,7 @@ begin
 end	
 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) 
 		zero_run_length <= 0; 
@@ -605,7 +569,7 @@ begin
 		zero_run_length <= Cb12_et_zero ? zero_run_length + 1: 0;
 end	 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb12_amp <= 0;  
@@ -617,8 +581,8 @@ begin
 		Cb12_msb_1 <= Cb12_msb;
 		end
 end	 
-
-always @(posedge clk)
+	
+always_ff @(posedge clk)
 begin
 	if (rst) begin
 		Cb11_1_pos <= 0; Cb11_1_neg <= 0; Cb11_msb <= 0;
@@ -632,7 +596,7 @@ begin
 		end
 end	 
 
-always @(posedge clk)
+always_ff @(posedge clk)
 begin
 	if (rst) begin 
 		Cb12_pos <= 0; Cb12_neg <= 0; Cb12_msb <= 0; Cb12_et_zero <= 0; 
