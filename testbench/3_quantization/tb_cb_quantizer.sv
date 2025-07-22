@@ -21,7 +21,7 @@
 // Author:Navaal Noshi
 // Date:21st July,2025.
 
-`timescale 1ns / 1ps
+`timescale 1ns / 100ps
 
 module tb_cb_quantizer;
 
