@@ -1,3 +1,26 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: cr_huff_tb
+// Description:
+//    This testbench is designed to verify the functionality of the `cr_huff` module,
+//    which performs Huffman encoding on quantized Discrete Cosine Transform (DCT)
+//    coefficients for the Cr (Chroma Red) component. The DUT expects 11-bit signed
+//    quantized coefficients for an 8x8 block (Cr11 through Cr88).
+//
+//    The testbench generates a 100 MHz clock and applies a reset sequence. It includes
+//    two distinct test cases. The first test case provides an input block where all
+//    Cr coefficients are zero, which should result in an End-of-Block (EOB) marker
+//    from the Huffman encoder. The second test case sets a non-zero DC coefficient
+//    (Cr11) and one non-zero AC coefficient (Cr12), with all other coefficients
+//    being zero, to test the encoding of a sparse block. For both cases, the testbench
+//    asserts `enable` to initiate encoding and then deasserts it, allowing the DUT
+//    to process the block.
+//
+// Author:Rameen
+// Date:22nd July,2025.
+
 `timescale 1ns / 100ps
 
 module cr_huff_tb;
