@@ -107,9 +107,11 @@ JPEG_Encoder/
 ---
 ## Module Descriptions
 ### `RGB2YCBCR`
+
 <div align="center">
-  <img src="https://drive.google.com/uc?id=1L2DIvizOIso9FsDpLFeT24lqjbnk3u6x" width="640" height="460">
+  <img src="https://drive.google.com/uc?id=1L2DIvizOIso9FsDpLFeT24lqjbnk3u6x" width="640" height="440">
 </div>
+
 * Converts RGB to YCbCr using fixed-point arithmetic
 * **Stage 1**: Multiply-add stage with coefficients for Y, Cb, Cr
 * **Stage 2**: Round and clip to 8-bit output
@@ -128,12 +130,13 @@ JPEG_Encoder/
 ---
 
 ### `*_quantizer`: Quantization Modules
+
 <div align="center">
   <img src="https://drive.google.com/uc?id=14HqEGYOWrooeTAi3vzY9K2ukFDauzobw" width="600" height="580">
 </div>
+
 * Quantizes DCT coefficients using reciprocal pre-computed multipliers
 * 3-stage pipelined structure:
-
   1. **Sign Extension**: Convert signed 11-bit to 32-bit
   2. **Multiply**: With scaled reciprocal Q matrix value
   3. **Round & Shift**: Arithmetic right shift by 12
@@ -141,9 +144,11 @@ JPEG_Encoder/
 ---
 
 ### `*_huff`: Huffman Encoding
+
 <div align="center">
   <img src="https://drive.google.com/uc?id=1QW2JD19TAh8yTAYJZvgZVAOwX6gChf3o" width="640" height="500">
 </div>
+
 * JPEG-compliant DC and AC Huffman coding
 * **Stage 1**: Sign and magnitude extraction
 * **Stage 2**: Run-length encoding of zeroes
