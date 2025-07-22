@@ -51,7 +51,7 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 
 ## Pipeline Architecture
 <div align="center">
-  <img src="https://drive.google.com/uc?id=1mRtAl3d6mx95bcHVfP82KFCAkTnEHIwH" width="640" height="480">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-pipeline_diagram.png" width="640" height="480">
 </div>
 
 
@@ -110,7 +110,7 @@ JPEG_Encoder/
 ### `RGB2YCBCR`
 
 <div align="center">
-  <img src="https://drive.google.com/uc?id=1L2DIvizOIso9FsDpLFeT24lqjbnk3u6x" width="640" height="440">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-rgb2ycrcb.png" width="640" height="440">
 </div>
 
 * Converts RGB to YCbCr using fixed-point arithmetic
@@ -121,6 +121,10 @@ JPEG_Encoder/
 ---
 
 ### `*_dct`: DCT Modules
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-dct.png" width="600" height="580">
+</div>
 
 * Modules: `y_dct`, `cb_dct`, `cr_dct`
 * Accepts 8×8 block, outputs 64 DCT coefficients (Z11 to Z88)
@@ -133,7 +137,7 @@ JPEG_Encoder/
 ### `*_quantizer`: Quantization Modules
 
 <div align="center">
-  <img src="https://drive.google.com/uc?id=14HqEGYOWrooeTAi3vzY9K2ukFDauzobw" width="600" height="580">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-quantization.png" width="600" height="580">
 </div>
 
 * Quantizes DCT coefficients using reciprocal pre-computed multipliers
@@ -147,7 +151,7 @@ JPEG_Encoder/
 ### `*_huff`: Huffman Encoding
 
 <div align="center">
-  <img src="https://drive.google.com/uc?id=1QW2JD19TAh8yTAYJZvgZVAOwX6gChf3o" width="640" height="500">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-huff.png" width="640" height="500">
 </div>
 
 * JPEG-compliant DC and AC Huffman coding
@@ -163,7 +167,7 @@ JPEG_Encoder/
 ### Block Diagram
 
 <div align="center">
-  <img src="https://drive.google.com/uc?id=1PH06MWUhUusrJRR7ESJDLxEhG3zJOgls" width="800" height="580">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-fsm.png" width="800" height="580">
 </div>
 
 #### 1. `sync_fifo_32`:
