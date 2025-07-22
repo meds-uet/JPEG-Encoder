@@ -8,6 +8,22 @@
 
 ---
 
+## Features
+
+This project implements a full JPEG compression pipeline using modern SystemVerilog constructs:
+
+- `logic` data type
+- Color space transformation (RGB to YCbCr)
+- 2D Discrete Cosine Transform (DCT) for Y, Cb, Cr
+- Fixed-point quantization with precomputed reciprocals
+- Huffman encoding for each 8×8 block
+- FF byte-stuffing and bitstream output
+
+---
+
+## Usage
+
+
 
 ##  Licensing
 
