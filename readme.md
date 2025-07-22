@@ -28,11 +28,12 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 ## System Architecture
 
 ### Top-Level Block Diagram
+
 <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-Top%20level%20module.png" width="600" height="400">
 </div>
-#### Inputs:
 
+#### Inputs:
 * `data_in [23:0]`: RGB input pixel `{R, G, B}`
 * `enable`: Starts processing the current pixel
 * `end_of_file_signal`: Flags final pixel
