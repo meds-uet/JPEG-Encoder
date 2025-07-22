@@ -1,3 +1,25 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: y_huff_tb
+// Description:
+//    This testbench is designed to verify the functionality of the `y_huff` module,
+//    which performs Huffman encoding on quantized Discrete Cosine Transform (DCT)
+//    coefficients for the Y (Luma) component. The DUT expects 11-bit signed
+//    quantized coefficients for an 8x8 block (Y11 through Y88).
+//
+//    The testbench generates a 100 MHz clock and applies a reset sequence. It then
+//    provides two test cases. The first test case sets specific non-zero values
+//    for a few coefficients (Y11, Y21, Y13) and initializes all other coefficients
+//    to zero, simulating a typical sparse DCT block. The second test case applies
+//    different values to Y11 and Y21 after a reset. For both cases, the testbench
+//    asserts `enable` to initiate encoding and then deasserts it, allowing the DUT
+//    to process the block.
+//
+// Author:Rameen
+// Date:21st July,2025.
+
 `timescale 1ns / 100ps
 
 module y_huff_tb;
