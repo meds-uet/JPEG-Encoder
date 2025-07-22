@@ -224,11 +224,6 @@ Verifies the `rgb2ycrcb` module that converts RGB input into YCbCr format using 
 * Clock and Reset
 * `data_in [23:0]`: `{B, G, R}` packed RGB
 * `enable`: Applied for 1 cycle per vector
-### Expected Outputs:
-
-<div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/rgb2ycrcb_EO_CO.png?raw=true" width="640" height="360">
-</div>
 
 ---
 
