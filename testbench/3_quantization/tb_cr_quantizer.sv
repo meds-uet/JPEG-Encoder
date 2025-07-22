@@ -1,15 +1,3 @@
-// Copyright 2025 Maktab-e-Digital Systems Lahore.
-// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
-// SPDX-License-Identifier: Apache-2.0
-//
-// Description:     
-//   This testbench verifies the cr_quantizer SystemVerilog module, which quantizes an 8×8 matrix of DCT
-//   coefficients for the Cr (Chrominance-Red) color channel in a JPEG encoder pipeline. 
-//   It provides a carefully structured input matrix to test the quantization behavior and inspects the result.
-//
-// Author:Navaal Noshi
-// Date:16th July,2025.
-
 `timescale 1ns / 1ps
 
 module tb_cr_quantizer;

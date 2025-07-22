@@ -1,16 +1,5 @@
-// Copyright 2025 Maktab-e-Digital Systems Lahore.
-// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
-// SPDX-License-Identifier: Apache-2.0
-//
-// Description:     
-//   This is a SystemVerilog testbench designed to validate the functionality of the y_quantizer module, which
-//   performs quantization on an 8×8 block of DCT-transformed Y (luminance) coefficients in a JPEG encoder. It
-//   feeds a patterned input matrix to the quantizer and verifies the quantized output.
-//
-// Author:Navaal Noshi
-// Date:16th July,2025.
-
 `timescale 1ns / 1ps
+
 module tb_y_quantizer;
 
     logic clk = 0;
