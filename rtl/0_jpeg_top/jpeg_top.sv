@@ -15,6 +15,7 @@
 //
 // Author:Navaal Noshi
 // Date:11th July,2025.
+
 `timescale 1ns / 100ps
 
 module jpeg_top (
@@ -28,19 +29,12 @@ module jpeg_top (
     output logic [4:0]   end_of_file_bitstream_count,
     output logic         eof_data_partial_ready
 );
-
-    // -------------------------------------------------------------------------
     // Internal Signals
-    // -------------------------------------------------------------------------
     logic [31:0] JPEG_FF;                  // Output from fifo_out to ff_checker
     logic        data_ready_FF;            // Data ready from fifo_out
     logic [4:0]  orc_reg_in;               // Output register count from fifo_out
 
-    // -------------------------------------------------------------------------
-    // Submodule: fifo_out
-    // Description:
     //   This module packs and outputs the encoded JPEG bits into a 32-bit word.
-    // -------------------------------------------------------------------------
     fifo_out u19 (
         .clk(clk),
         .rst(rst),
@@ -51,11 +45,7 @@ module jpeg_top (
         .orc_reg(orc_reg_in)
     );
 
-    // -------------------------------------------------------------------------
-    // Submodule: ff_checker
-    // Description:
     //   Inserts a 0x00 byte after every 0xFF in the JPEG stream and handles EOF.
-    // -------------------------------------------------------------------------
     ff_checker u20 (
         .clk(clk),
         .rst(rst),
