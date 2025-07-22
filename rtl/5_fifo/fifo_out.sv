@@ -20,6 +20,7 @@
 // Date:19th July,2025.
 
 `timescale 1ns / 100ps
+
 module fifo_out(
     input         clk,         // Clock input
     input         rst,         // Reset input
@@ -30,7 +31,6 @@ module fifo_out(
     output logic [4:0]  orc_reg      // Output register for orc value
 );
     
-//==============================================================declaration===============================================================================================
 // logic for JPEG bitstream and orc values from pre_fifo
 logic  [31:0]  cb_JPEG_bitstream, cr_JPEG_bitstream, y_JPEG_bitstream;
 logic  [4:0]   cr_orc, cb_orc, y_orc;
@@ -110,10 +110,6 @@ logic cb_write_enable2 = !fifo_mux && cb_write_enable;
 logic [31:0] cb_bits_out = fifo_mux ? cb_bits_out2 : cb_bits_out1;
 logic cb_fifo_empty = fifo_mux ? cb_fifo_empty2 : cb_fifo_empty1;
 logic cb_out_enable = fifo_mux ? cb_out_enable2 : cb_out_enable1;
-//=============================================================================================================================================================
-
-
-//=====================================================================instance calll===========================================================================
     
 // Instance of pre_fifo module to get Y, Cb, Cr data and EOB signals
 pre_fifo u14(
@@ -191,7 +187,6 @@ sync_fifo_32 u17(
 .fifo_empty(y_fifo_empty),
 .rdata_valid(y_out_enable)
 );
-//=============================================================================================================================================================
 
 // Consolidated sequential logic for FIFO read requests, mux controls, and FIFO mux
 always_ff @(posedge clk) begin
@@ -453,5 +448,4 @@ generate
         end
     end
 endgenerate
-
 endmodule
