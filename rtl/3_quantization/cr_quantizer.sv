@@ -9,6 +9,7 @@
 //
 // Author:Navaal Noshi
 // Date:11th July,2025.
+
 `timescale 1ns / 100ps
 
 module cr_quantizer #(
