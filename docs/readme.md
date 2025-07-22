@@ -174,8 +174,7 @@ JPEG_Encoder/
 
 * Stores 32-bit Huffman output words
 * Read/write control and flow flags (`not_empty`, `not_full`)
-* 
-
+  
 #### 2. `fifo_out`:
 
 * Converts 32-bit word into 8-bit byte stream
