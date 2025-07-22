@@ -1,3 +1,27 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: cb_huff_tb
+// Description:
+//    This testbench is designed to verify the functionality of the `cb_huff` module,
+//    which performs Huffman encoding on quantized Discrete Cosine Transform (DCT)
+//    coefficients for the Cb (Chroma Blue) component. The DUT expects 11-bit signed
+//    quantized coefficients for an 8x8 block (Cb11 through Cb88).
+//
+//    The testbench generates a 100 MHz clock and applies a reset sequence. It includes
+//    two distinct test cases. The first test case provides an input block where all
+//    Cb coefficients are initialized to zero. This scenario is crucial for verifying
+//    that the encoder correctly generates an End-of-Block (EOB) marker after the DC
+//    coefficient. The second test case sets a non-zero DC coefficient (Cb11) and one
+//    non-zero AC coefficient (Cb12), while keeping other coefficients at zero, to
+//    test the encoding of a sparse block with actual data. For both cases, the
+//    testbench asserts `enable` to initiate the encoding process and then deasserts
+//    it, allowing the DUT sufficient time to process the entire block.
+//
+// Author:Rameen
+// Date:21st July,2025.
+
 `timescale 1ns / 100ps
 
 module cb_huff_tb;
@@ -104,5 +128,4 @@ module cb_huff_tb;
     #100;
     $finish;
   end
-
 endmodule
