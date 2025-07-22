@@ -1,3 +1,28 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: tb_sync_fifo_32
+// Description:
+//    This testbench is designed to verify the basic read/write functionality
+//    and empty status of the `sync_fifo_32` module, a 32-bit synchronous FIFO.
+//    The DUT has inputs for clock, reset, read request, 32-bit write data,
+//    and write enable. It outputs 32-bit read data, an empty flag, and a
+//    read data valid signal.
+//    The testbench generates a 100 MHz clock. The test sequence involves:
+//    1. Asserting and deasserting reset to initialize the FIFO.
+//    2. Writing four distinct 32-bit data words into the FIFO using a `write_word` task.
+//    3. Reading back all four data words from the FIFO using a `read_word` task,
+//       which includes a `wait` for the `rdata_valid` signal to ensure valid data is read.
+//    4. Finally, it checks if the `fifo_empty` flag is asserted after all reads,
+//       displaying a pass/fail message for this check.
+//
+//    The testbench utilizes `$display` for status messages and `tasks` (`write_word`,
+//    `read_word`) to encapsulate common operations, improving readability and reuse.
+//
+// Author:Navaal Noshi
+// Date:22nd July,2025.
+
 `timescale 1ns / 100ps
 
 module tb_sync_fifo_32;
