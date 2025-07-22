@@ -1,4 +1,22 @@
-`timescale 1ns / 1ps
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: tb_rgb2ycrcb
+// Description:
+//    This testbench verifies the functionality of the `rgb2ycrcb` module, which
+//    converts 24-bit RGB pixel data (8-bits per component) into 24-bit YCbCr
+//    pixel data. It instantiates the `rgb2ycrcb` DUT and provides clock, reset,
+//    enable, and input RGB data. The testbench applies a series of predefined
+//    RGB test vectors (e.g., Red, Green, Blue, White, Black, Gray, Custom)
+//    and monitors the `data_out` (YCbCr) and `enable_out` signals from the DUT.
+//    It includes a task `apply_rgb` for convenient stimulus application and
+//    tracks the number of valid outputs received. 
+//
+// Author:Navaal
+// Date:20th July,2025.
+
+`timescale 1ns / 100ps
 
 module tb_rgb2ycrcb;
 
