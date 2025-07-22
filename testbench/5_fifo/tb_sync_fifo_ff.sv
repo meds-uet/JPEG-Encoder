@@ -1,3 +1,32 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: tb_sync_fifo_ff
+// Description:
+//    This testbench is designed to thoroughly verify the functionality of the
+//    `sync_fifo_ff` module, which is a synchronous FIFO with a unique `rollover_write`
+//    feature. This FIFO handles 91-bit wide data. It has standard FIFO inputs like
+//    clock, reset, read request, write data, and write enable, and outputs for
+//    read data, fifo empty status, and read data valid. The `rollover_write` input
+//    is specifically tested to understand its impact on the FIFO's behavior,
+//    likely causing a skip in an entry.
+//
+//    The testbench generates a 100 MHz clock. The test sequence is divided into
+//    two main parts:
+//    1.  **Standard Write and Read:** It first initializes the FIFO by asserting and
+//        deasserting reset. Then, it writes four distinct 91-bit data values sequentially
+//        into the FIFO using the `write_to_fifo` task. Subsequently, it reads back
+//        all four values using the `read_from_fifo` task, which includes a `wait`
+//        condition for `rdata_valid` to ensure that valid data is available before reading.
+//    2.  **Rollover Write Test:** This section specifically targets the `rollover_write`
+//        functionality. It performs a `write_rollover` operation, which is intended
+//        to cause a 1-entry skip in the FIFO, followed by two regular writes. The
+//        test then reads back data, observing the effect of the `rollover_write`
+//        on the sequence of read data.
+// Author:Navaal Noshi
+// Date:22nd July,2025.
+
 `timescale 1ns / 100ps
 
 module tb_sync_fifo_ff;
