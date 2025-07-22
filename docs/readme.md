@@ -159,7 +159,7 @@ JPEG_Encoder/
 * **Stage 2**: Run-length encoding of zeroes
 * **Stage 3**: Table lookup for Huffman codes
 * **Stage 4**: Pack variable-length codes
-* **Stage 5**: Output data with `valid` signal
+* **Stage 5**: Output data 
 ---
 
 ### `FIFO and FSM Handling`:
