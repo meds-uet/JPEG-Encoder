@@ -24,7 +24,9 @@ This project implements a full JPEG compression pipeline using modern SystemVeri
 ## Usage
 
 
+## Documentation
 
+[![Documentation Status](https://meds-jpeg-docs.readthedocs.io/en/badge/?version=latest)](https://meds-jpeg-docs.readthedocs.io/en/latest/?badge=latest)
 ##  Licensing
 
 Licensed under the **Apache License 2.0**
