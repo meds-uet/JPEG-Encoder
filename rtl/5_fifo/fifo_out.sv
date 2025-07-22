@@ -1,16 +1,24 @@
-/* ---------------------------------------------------------------------------
-Module: fifo_out
-Description:
-    This module combines Y, Cb, and Cr JPEG encoded bitstreams into a single
-    32-bit JPEG output stream. It uses three FIFOs—one each for Y, Cb, and Cr—
-    to buffer and multiplex encoded data. It also aligns data according to the
-    number of remaining output register count (ORC) bits and applies necessary
-    shifting and padding. The output of this module connects to the ff_checker
-    module for byte stuffing (e.g., inserting 0x00 after 0xFF).
-    The logic includes multiple pipelining stages and multiplexing to handle
-    overlapping bitstreams and end-of-block signals. The module operates on a
-    strict clocked pipeline to ensure timing alignment for JPEG formatting.
---------------------------------------------------------------------------- */
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module, `fifo_out`, is responsible for combining and formatting the
+//    Y, Cb, and Cr JPEG encoded bitstreams into a unified 32-bit JPEG output stream.
+//    It utilizes three dedicated FIFOs (one for each color component) to buffer
+//    the incoming encoded data. The module performs crucial data alignment
+//    based on the remaining output register count (ORC) bits and applies
+//    appropriate bit shifting and padding to construct the final JPEG stream.
+//    The output of `fifo_out` directly feeds into the `ff_checker` module,
+//    where byte stuffing (e.g., insertion of 0x00 after 0xFF) is performed.
+//    The internal architecture incorporates multiple pipelining stages and
+//    multiplexing logic to efficiently manage overlapping bitstreams and
+//    end-of-block signals, ensuring precise timing and adherence to JPEG
+//    formatting requirements within a strict clocked pipeline.
+//
+// Author:Navaal
+// Date:19th July,2025.
+
 `timescale 1ns / 100ps
 module fifo_out(
     input         clk,         // Clock input
