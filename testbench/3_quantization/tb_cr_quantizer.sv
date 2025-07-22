@@ -1,4 +1,28 @@
-`timescale 1ns / 1ps
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: tb_cr_quantizer
+// Description:
+//    This testbench is designed to verify the functionality of the `cr_quantizer` module,
+//    which performs quantization on 8x8 blocks of Discrete Cosine Transform (DCT)
+//    coefficients for the Cr (Chroma Red) component. The DUT expects 11-bit signed input
+//    DCT coefficients (`Z`) and outputs 11-bit signed quantized coefficients (`Q`).
+//
+//    The testbench establishes a clock and applies a reset sequence to the DUT. It uses
+//    a parameterized quantization matrix (set to all 1s in this testbench for simplified
+//    verification, implying Q[i][j] will be equal to Z[i][j]). The `Z` input matrix
+//    is populated with a custom test pattern: increasing large values for elements above
+//    the secondary diagonal, a constant value on the secondary diagonal, and small
+//    varying values below it. After providing input and asserting `enable`, the testbench
+//    waits for the `out_enable` signal from the DUT, indicating completion of the
+//    quantization process. Finally, it displays the entire 8x8 `Q` (quantized) output
+//    matrix for visual inspection.
+//
+// Author:Navaal Noshi
+// Date:21st July,2025.
+
+`timescale 1ns / 100ps
 
 module tb_cr_quantizer;
 
