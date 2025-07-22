@@ -1,3 +1,26 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: tb_cb_quantizer
+// Description:
+//    This testbench is designed to verify the functionality of the `cb_quantizer` module,
+//    which performs quantization on 8x8 blocks of Discrete Cosine Transform (DCT)
+//    coefficients for the Cb (Chroma Blue) component. The DUT expects 11-bit signed input
+//    DCT coefficients (`Z`) and outputs 11-bit signed quantized coefficients (`Q`).
+//
+//    The testbench generates a clock signal and applies a reset sequence to the DUT. It
+//    then populates the `Z` input array with a custom test pattern: increasing large
+//    values for elements above the secondary diagonal, a constant value (50) on the
+//    secondary diagonal, and small varying values (-1, 0, or 1) for elements below it.
+//    After providing this input matrix and asserting the `enable` signal, the testbench
+//    waits for the `out_enable` signal from the DUT, which indicates the completion
+//    of the quantization process. Finally, it displays the entire 8x8 `Q` (quantized)
+//    output matrix for visual inspection and verification.
+//
+// Author:Navaal Noshi
+// Date:21st July,2025.
+
 `timescale 1ns / 1ps
 
 module tb_cb_quantizer;
