@@ -133,8 +133,7 @@ logic third_8_all_0s, fourth_8_all_0s, fifth_8_all_0s, sixth_8_all_0s, seventh_8
 logic eighth_8_all_0s, end_of_block, code_15_0, zrl_et_15;
 
 logic [7:0] code_index = {zrl_2, Y12_bits};
-
-// Synthesizable SystemVerilog conversion of always block
+k
 always_ff @(posedge clk) begin
 	if (rst) begin
 		third_8_all_0s    <= 0;
@@ -160,19 +159,12 @@ always_ff @(posedge clk) begin
 	end
 end
 
-/*
-end_of_block checks to see if there are any nonzero elements left in the block.
+/*end_of_block checks to see if there are any nonzero elements left in the block.
 If there aren't any nonzero elements left, then the last bits in the JPEG stream
-will be the end-of-block code.
-
-The purpose of this register is to determine if the zero run length code 15-0 
+will be the end-of-block code.The purpose of this register is to determine if the zero run length code 15-0 
 should be used or not. It should be used if there are 15 or more zeros in a row, 
-followed by a nonzero value. If there are only zeros left in the block, then 
-end_of_block will be 1. If there are any nonzero values left in the block, 
-end_of_block will be 0.
-*/
-
-// SystemVerilog - Synthesizable conversion
+followed by a nonzero value. If there are only zeros left in the block, then end_of_block will be 1. 
+If there are any nonzero values left in the block, end_of_block will be 0.*/
 
 // end_of_block logic based on block_counter and enable flags
 always_ff @(posedge clk) begin
@@ -224,7 +216,6 @@ always_ff @(posedge clk) begin
 		old_orc_1 <= output_reg_count;
 end
 
-// SystemVerilog - Synthesizable code with detailed comments
 always_ff @(posedge clk) begin
 	if (rst) begin
 		// Reset all rollover detection and output tracking signals
@@ -1277,8 +1268,7 @@ always_ff @(posedge clk) begin
     end
 end
 
-
- 		// This block calculates the number of bits required to represent the negative value of Y11_1
+ // This block calculates the number of bits required to represent the negative value of Y11_1
 // It checks from MSB to LSB for the first 0 bit, which determines the bit-width
 // Output: Y11_bits_neg
 
