@@ -1,0 +1,4 @@
+site_name: JPEG Encoder Docs
+nav:
+  - Home: index.md
+  - Usage: usage.md
