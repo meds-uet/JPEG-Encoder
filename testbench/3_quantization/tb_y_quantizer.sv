@@ -18,7 +18,7 @@
 //    Finally, it displays the entire 8x8 `Q` (quantized) output matrix for visual
 //    inspection and verification of the quantization operation.
 //
-// Author:Rameen
+// Author:Navaal Noshi
 // Date:20th July,2025.
 
 `timescale 1ns / 100ps
