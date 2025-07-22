@@ -1,3 +1,27 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: tb_fifo_out
+// Description:
+//    This testbench is designed to verify the functionality of the `fifo_out` module,
+//    which appears to act as an output buffering or formatting stage in a JPEG encoding
+//    pipeline. It accepts 24-bit input data (`data_in`) and is expected to output
+//    a 32-bit JPEG bitstream (`JPEG_bitstream`), along with control signals
+//    `data_ready` and `orc_reg` (likely indicating output register count).
+//
+//    The testbench generates a 100 MHz clock and applies a standard reset sequence.
+//    It then enables the DUT and feeds a short sequence of incrementing 24-bit
+//    dummy data. After providing the input, the `enable` signal is deasserted,
+//    allowing the internal pipelines of the `fifo_out` module to process and
+//    output the buffered data. The testbench monitors and displays the final
+//    values of `JPEG_bitstream`, `orc_reg`, and `data_ready` before concluding
+//    the simulation. This setup helps in basic functional verification of data
+//    transfer and output signaling within the `fifo_out` module.
+//
+// Author:Navaal Noshi
+// Date:20thJuly,2025.
+
 `timescale 1ns / 100ps
 
 module tb_fifo_out;
