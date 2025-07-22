@@ -28,11 +28,9 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 ## System Architecture
 
 ### Top-Level Block Diagram
-
 <div align="center">
   <img src="https://drive.google.com/uc?id=1mRtAl3d6mx95bcHVfP82KFCAkTnEHIwH" width="600" height="400">
 </div>
-
 #### Inputs:
 
 * `data_in [23:0]`: RGB input pixel `{R, G, B}`
@@ -51,10 +49,9 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 ---
 
 ## Pipeline Architecture
-
-![Pipeline Diagram](https://drive.google.com/uc?id=1mRtAl3d6mx95bcHVfP82KFCAkTnEHIwH)
-
-
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1mRtAl3d6mx95bcHVfP82KFCAkTnEHIwH" width="640" height="480">
+</div>
 The JPEG encoding pipeline begins its process with the `rgb2ycbcr` module, which takes incoming RGB pixel data and, once an 8x8 block is processed, outputs separate Y, Cb, and Cr data blocks along with a `data_ready` signal; these outputs simultaneously fan out as inputs to the three parallel `y_dct`, `cb_dct`, and `cr_dct` modules. Each DCT module then transforms its respective block into 12-bit signed frequency domain coefficients (`*_dct_data`), passing these, along with `dct_valid` and `block_valid` signals, to their corresponding `y_quantizer`, `cb_quantizer`, and `cr_quantizer` modules. From the quantization stage, the 8-bit `*_quantized_data` and control signals (`quant_valid`, `block_done`) are routed to the respective `y_huff`, `cb_huff`, and `cr_huff` Huffman encoding modules. In a parallel path from the quantization stage, the 12-bit quantized data also feeds into intermediate buffers (`yd_q_h`, `cbd_q_h`, `crd_q_h`), which then combine to form a 24-bit `data_in` for the `pre_fifo` stage, subsequently feeding into the `fifo_out` module. Both the Huffman encoders (providing `vc_code` and `code_len`) and the `pre_fifo` (providing `data_in`) connect to this `fifo_out` module, which then packs the incoming data into a continuous 32-bit `JPEG_bitstream`, also outputting `data_ready` and `orc_reg` (output register count). This 32-bit `JPEG_bitstream` then directly connects to a `sync_fifo_32` for synchronized data flow, whose output (`syncd_data` and `data_ready`) then feeds into the `ff_checker` module for bitstream integrity checks. Finally, the `ff_checker`'s validated output (`checked_data` and `checked_valid`) connects to the `jpeg_out` module, which serves as the ultimate output interface, providing the final `output_data` along with `output_valid` and `write_enable` signals to the external environment.
 
 1. `RGB2YCBCR` – Color space conversion
@@ -83,9 +80,7 @@ The JPEG encoding pipeline begins its process with the `rgb2ycbcr` module, which
    * Applies FF byte stuffing and outputs clean byte-aligned stream
 
 ---
-
 ## Sub-modules:
-
 ```
 JPEG_Encoder/
 ├── RGB2YCBCR/
@@ -133,13 +128,11 @@ JPEG_Encoder/
 ```
 
 ---
-
 ## Module Descriptions
-
 ### `RGB2YCBCR`
-
-![RGB2YCBCR](https://drive.google.com/uc?id=1L2DIvizOIso9FsDpLFeT24lqjbnk3u6x)
-
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1L2DIvizOIso9FsDpLFeT24lqjbnk3u6x" width="640" height="360">
+</div>
 * Converts RGB to YCbCr using fixed-point arithmetic
 * **Stage 1**: Multiply-add stage with coefficients for Y, Cb, Cr
 * **Stage 2**: Round and clip to 8-bit output
@@ -158,9 +151,9 @@ JPEG_Encoder/
 ---
 
 ### `*_quantizer`: Quantization Modules
-
-![Quantizer](https://drive.google.com/uc?id=14HqEGYOWrooeTAi3vzY9K2ukFDauzobw)
-
+<div align="center">
+  <img src="https://drive.google.com/uc?id=14HqEGYOWrooeTAi3vzY9K2ukFDauzobw" width="600" height="480">
+</div>
 * Quantizes DCT coefficients using reciprocal pre-computed multipliers
 * 3-stage pipelined structure:
 
@@ -171,24 +164,24 @@ JPEG_Encoder/
 ---
 
 ### `*_huff`: Huffman Encoding
-
-![Huffman](https://drive.google.com/uc?id=1QW2JD19TAh8yTAYJZvgZVAOwX6gChf3o)
-
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1QW2JD19TAh8yTAYJZvgZVAOwX6gChf3o" width="640" height="360">
+</div>
 * JPEG-compliant DC and AC Huffman coding
 * **Stage 1**: Sign and magnitude extraction
 * **Stage 2**: Run-length encoding of zeroes
 * **Stage 3**: Table lookup for Huffman codes
 * **Stage 4**: Pack variable-length codes
 * **Stage 5**: Output data with `valid` signal
-
 ---
 
 ### `FIFO and FSM Handling`:
 
 ### Block Diagram
 
-![FIFO Diagram](https://drive.google.com/uc?id=1PH06MWUhUusrJRR7ESJDLxEhG3zJOgls)
-
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1PH06MWUhUusrJRR7ESJDLxEhG3zJOgls" width="600" height="480">
+</div>
 
 #### 1. `sync_fifo_32`:
 
