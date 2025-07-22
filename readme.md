@@ -224,10 +224,12 @@ Verifies the `rgb2ycrcb` module that converts RGB input into YCbCr format using 
 * Clock and Reset
 * `data_in [23:0]`: `{B, G, R}` packed RGB
 * `enable`: Applied for 1 cycle per vector
-### Expected Outputs
-* Corresponding `{Y, Cb, Cr}` 8-bit triplets
-* Aligned with `enable_out` after pipeline delay
-* Printed and validated during simulation
+### Expected Outputs:
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/rgb2ycrcb_EO_CO.png?raw=true" width="640" height="360">
+</div>
+
 ---
 
 ## ✅ `y_dct_tb`, `cb_dct_tb`, `cr_dct_tb`
@@ -242,10 +244,26 @@ Validate the 2D Discrete Cosine Transform for luminance and chrominance componen
 * `enable = 1` during input phase
 * `data_in [7:0]`: Serial 8-bit input over 64 cycles
 ### Expected Outputs
-* `output_enable` asserts after pipeline latency
-* 64 coefficients: `Z11_final` to `Z88_final`
-* At least one coefficient should be non-zero
-* Visual inspection or pass/fail log based on output
+
+
+* y_dct:
+  
+  <div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="640" height="360">
+  </div>
+ 
+* cr_dct:
+  
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_dct_EO_CO.png?raw=true" width="640" height="360">
+</div>
+
+
+*cb_dct:
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_dct_EO_CO.png?raw=true" width="640" height="360">
+</div>
 
 ---
 
@@ -261,9 +279,23 @@ Test quantization logic for Y, Cb, and Cr DCT blocks. Ensures pipelined quantiza
 * `Z[8][8]`: 11-bit signed DCT coefficients
 * `enable = 1` to start quantization
 ### Expected Outputs
-* `Q[8][8]`: Quantized outputs
-* Asserted `out_enable`
-* Displayed matrix for manual verification
+* y_quantizer:
+  
+  <div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_quantizer_EO_CO.png?raw=true" width="600" height="450">
+  </div>
+
+* cr_quantizer:
+  
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_quantizer_EO_CO.png?raw=true" width="600" height="450">
+</div>
+
+*cb_quantizer:
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_quantizer_EO_CO.png?raw=true" width="600" height="450">
+</div>
 
 ---
 
@@ -279,9 +311,23 @@ Validate Huffman encoding of quantized DCT blocks for Y, Cb, Cr. Checks bitstrea
 * `X11`–`X88`: 11-bit signed coefficients
 * `enable = 1` to trigger encoding
 ### Expected Outputs
-* `JPEG_bitstream [31:0]`: Huffman-encoded data
-* `data_ready = 1` when valid output available
-* `end_of_block_output` asserted at block end
+* y_huff:
+  
+  <div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_huff_EO_CO.png?raw=true" width="640" height="360">
+  </div>
+
+* cr_huff:
+  
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_huff_EO_CO.png?raw=true" width="640" height="360">
+</div>
+
+*cb_huff:
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_huff_EO_CO.png?raw=true" width="640" height="360">
+</div>
 
 ---
 
