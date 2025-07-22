@@ -174,6 +174,7 @@ JPEG_Encoder/
 
 * Stores 32-bit Huffman output words
 * Read/write control and flow flags (`not_empty`, `not_full`)
+* 
 
 #### 2. `fifo_out`:
 
@@ -361,12 +362,13 @@ Verify 32-bit synchronous FIFO. Validates write/read functionality and `fifo_emp
 * `write_enable = 1` with `write_data`
 * `read_enable = 1` when ready
 ### Expected Outputs
-* `read_data` matches input order
-* `rdata_valid = 1` during reads
-* `fifo_empty = 1` at end
-* Pass/Fail message printed
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_32_EO_CO.png?raw=true" width="640" height="400">
+</div>
 
 ---
+
 ## `tb_sync_fifo_ff`
 
 ### Purpose
@@ -379,9 +381,10 @@ Verify 91-bit FIFO with `rollover_write` behavior. Designed for special pipeline
 * `write_data [90:0]`
 * `rollover_write = 1` on selected cycles
 ### Expected Outputs
-* FIFO skips or bubbles inserted
-* Data read in expected order
-* Valid signal toggled accordingly
+
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_ff_EO_CO.png?raw=true" width="640" height="400">
+</div>
 
 ---
 
