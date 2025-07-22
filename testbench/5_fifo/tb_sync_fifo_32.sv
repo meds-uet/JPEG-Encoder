@@ -17,9 +17,6 @@
 //    4. Finally, it checks if the `fifo_empty` flag is asserted after all reads,
 //       displaying a pass/fail message for this check.
 //
-//    The testbench utilizes `$display` for status messages and `tasks` (`write_word`,
-//    `read_word`) to encapsulate common operations, improving readability and reuse.
-//
 // Author:Navaal Noshi
 // Date:22nd July,2025.
 
