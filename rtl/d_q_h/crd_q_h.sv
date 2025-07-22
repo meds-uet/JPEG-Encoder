@@ -1,15 +1,23 @@
-/*----------------------------------------------------------------------------------
-Module Name : crd_q_h
-Description : This module integrates the Discrete Cosine Transform (DCT), quantizer, 
-and Huffman encoder specifically for the Cr (chrominance-red) component of the JPEG 
-encoding process. It processes an 8x8 block of input pixel data by:
-  1. Performing 2D DCT using fixed-point arithmetic
-  2. Quantizing the resulting DCT coefficients using a chrominance quantization matrix
-  3. Compressing the quantized values using Huffman encoding
-
-This pipeline is synchronized using `enable` and `rst`, and it produces a compressed
-32-bit JPEG bitstream along with data-ready flags and end-of-block status.
-----------------------------------------------------------------------------------*/
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: crd_q_h
+// Description:
+//    This module is an integrated pipeline specifically designed for processing the
+//    Cr (chrominance-red) component within a JPEG encoding system. It combines
+//    three essential stages: the Discrete Cosine Transform (DCT), quantization,
+//    and Huffman encoding. The module processes 8x8 blocks of input pixel data by:
+//    1. Executing a 2D DCT using fixed-point arithmetic.
+//    2. Quantizing the resulting DCT coefficients with a dedicated chrominance quantization matrix.
+//    3. Applying Huffman encoding to the quantized values to achieve compression.
+//
+//    The entire pipeline is synchronized via `enable` and `rst` control signals.
+//    It outputs a compressed 32-bit JPEG bitstream, accompanied by `data_ready` flags
+//    to indicate valid data and an `end_of_block` status.
+//
+// Author:Rameen
+// Date:19th July,2025.
 
 `timescale 1ns / 100ps
 
@@ -25,10 +33,10 @@ module crd_q_h (
     output logic        end_of_block_empty    // FIFO empty flag for EOB of Cr block
 );
 
-    // ---------------- Internal control wires ----------------
+    // Internal control wires
     logic dct_enable, quantizer_enable;
 
-    // ---------------- Wires for DCT output ----------------
+    // Wires for DCT output 
     logic [10:0] Z11_final, Z12_final, Z13_final, Z14_final;
     logic [10:0] Z15_final, Z16_final, Z17_final, Z18_final;
     logic [10:0] Z21_final, Z22_final, Z23_final, Z24_final;
@@ -46,7 +54,7 @@ module crd_q_h (
     logic [10:0] Z81_final, Z82_final, Z83_final, Z84_final;
     logic [10:0] Z85_final, Z86_final, Z87_final, Z88_final;
 
-    // ---------------- Wires for Quantizer output ----------------
+    //  Wires for Quantizer output 
     logic [10:0] Q11, Q12, Q13, Q14, Q15, Q16, Q17, Q18;
     logic [10:0] Q21, Q22, Q23, Q24, Q25, Q26, Q27, Q28;
     logic [10:0] Q31, Q32, Q33, Q34, Q35, Q36, Q37, Q38;
@@ -56,7 +64,7 @@ module crd_q_h (
     logic [10:0] Q71, Q72, Q73, Q74, Q75, Q76, Q77, Q78;
     logic [10:0] Q81, Q82, Q83, Q84, Q85, Q86, Q87, Q88;
 
-    // ---------------- DCT Module for Cr Component ----------------
+    //  DCT Module for Cr Component
     cr_dct u8 (
         .clk(clk), .rst(rst), .enable(enable), .data_in(data_in),
         .Z11_final(Z11_final), .Z12_final(Z12_final), .Z13_final(Z13_final), .Z14_final(Z14_final),
@@ -78,7 +86,7 @@ module crd_q_h (
         .output_enable(dct_enable)
     );
 
-    // ---------------- Quantizer for Cr DCT coefficients ----------------
+    //  Quantizer for Cr DCT coefficients
     cr_quantizer u9 (
         .clk(clk), .rst(rst), .enable(dct_enable),
         .Z11(Z11_final), .Z12(Z12_final), .Z13(Z13_final), .Z14(Z14_final),
@@ -108,7 +116,7 @@ module crd_q_h (
         .out_enable(quantizer_enable)
     );
 
-    // ---------------- Huffman Encoder for Cr ----------------
+    // Huffman Encoder for Cr 
     cr_huff u10 (
         .clk(clk), .rst(rst), .enable(quantizer_enable),
         .Cr11(Q11), .Cr12(Q21), .Cr13(Q31), .Cr14(Q41), .Cr15(Q51), .Cr16(Q61), .Cr17(Q71), .Cr18(Q81),
