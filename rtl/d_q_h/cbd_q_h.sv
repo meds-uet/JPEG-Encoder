@@ -1,6 +1,7 @@
 // Copyright 2025 Maktab-e-Digital Systems Lahore.
 // Licensed under the Apache License, Version 2.0, see LICENSE file for details.
 // SPDX-License-Identifier: Apache-2.0
+//
 // Description:
 //   This module integrates the Discrete Cosine Transform (DCT), quantizer,
 //   Y and Huffman encoder modules for the **Cb (chrominance-blue)** component of the JPEG
@@ -10,8 +11,9 @@
 //   3. Huffman encoding the quantized values to produce a compressed JPEG stream
 //  This combined module outputs a 32-bit Huffman encoded JPEG stream and provides
 // flags for data readiness and end-of-block status.
+//
 // Author:Navaal Noshi
-// Date:13th July,2025.
+// Date:19th July,2025.
 
 `timescale 1ns / 100ps
 
@@ -27,10 +29,10 @@ module cbd_q_h (
     output logic        end_of_block_empty    // Output: indicates end-of-block FIFO status
 );
 
-    // ---------------- Control Enable Wires ----------------
+    // Control Enable Wires
     logic dct_enable, quantizer_enable;
 
-    // ---------------- DCT Output Wires ----------------
+    //  DCT Output Wires
     logic [10:0] Z11_final, Z12_final, Z13_final, Z14_final;
     logic [10:0] Z15_final, Z16_final, Z17_final, Z18_final;
     logic [10:0] Z21_final, Z22_final, Z23_final, Z24_final;
@@ -48,7 +50,7 @@ module cbd_q_h (
     logic [10:0] Z81_final, Z82_final, Z83_final, Z84_final;
     logic [10:0] Z85_final, Z86_final, Z87_final, Z88_final;
 
-    // ---------------- Quantizer Output Wires ----------------
+    // Quantizer Output Wires
     logic [10:0] Q11, Q12, Q13, Q14, Q15, Q16, Q17, Q18;
     logic [10:0] Q21, Q22, Q23, Q24, Q25, Q26, Q27, Q28;
     logic [10:0] Q31, Q32, Q33, Q34, Q35, Q36, Q37, Q38;
@@ -58,7 +60,7 @@ module cbd_q_h (
     logic [10:0] Q71, Q72, Q73, Q74, Q75, Q76, Q77, Q78;
     logic [10:0] Q81, Q82, Q83, Q84, Q85, Q86, Q87, Q88;
 
-    // ---------------- DCT for Cb Component ----------------
+    // DCT for Cb Component
     cb_dct u5 (
         .clk(clk), .rst(rst), .enable(enable), .data_in(data_in),
         .Z11_final(Z11_final), .Z12_final(Z12_final), .Z13_final(Z13_final), .Z14_final(Z14_final),
@@ -80,7 +82,7 @@ module cbd_q_h (
         .output_enable(dct_enable)
     );
 
-    // ---------------- Quantizer for Cb DCT output ----------------
+    // Quantizer for Cb DCT output
     cb_quantizer u6 (
         .clk(clk), .rst(rst), .enable(dct_enable),
         .Z11(Z11_final), .Z12(Z12_final), .Z13(Z13_final), .Z14(Z14_final),
@@ -110,7 +112,7 @@ module cbd_q_h (
         .out_enable(quantizer_enable)
     );
 
-    // ---------------- Huffman Encoder for Quantized Cb Values ----------------
+    // Huffman Encoder for Quantized Cb Values
     cb_huff u7 (
         .clk(clk), .rst(rst), .enable(quantizer_enable),
         .Cb11(Q11), .Cb12(Q21), .Cb13(Q31), .Cb14(Q41), .Cb15(Q51), .Cb16(Q61), .Cb17(Q71), .Cb18(Q81),
