@@ -29,7 +29,7 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 
 ### Top-Level Block Diagram
 <div align="center">
-  <img src="https://drive.google.com/uc?id=1mRtAl3d6mx95bcHVfP82KFCAkTnEHIwH" width="600" height="400">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-Top%20level%20module.png" width="600" height="400">
 </div>
 #### Inputs:
 
