@@ -24,7 +24,7 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 * Universally supported across hardware/software platforms
 
 ---
-
+## RTL
 ## System Architecture
 
 ### Top-Level Block Diagram
@@ -204,6 +204,138 @@ JPEG_Encoder/
 | READ\_CB  | Reads from Cb FIFO                     |
 | READ\_CR  | Reads from Cr FIFO                     |
 
+
+---
+## Testbenches
+
+##  `tb_rgb2ycrcb`
+
+### Purpose
+Verifies the `rgb2ycrcb` module that converts RGB input into YCbCr format using fixed-point arithmetic.
+### Test Cases
+* Red (255, 0, 0)
+* Green (0, 255, 0)
+* Blue (0, 0, 255)
+* White (255, 255, 255)
+* Black (0, 0, 0)
+* Gray (128, 128, 128)
+* Custom: (50, 100, 150)
+### Input Vectors
+* Clock and Reset
+* `data_in [23:0]`: `{B, G, R}` packed RGB
+* `enable`: Applied for 1 cycle per vector
+### Expected Outputs
+* Corresponding `{Y, Cb, Cr}` 8-bit triplets
+* Aligned with `enable_out` after pipeline delay
+* Printed and validated during simulation
+---
+
+## ✅ `y_dct_tb`, `cb_dct_tb`, `cr_dct_tb`
+### Purpose
+Validate the 2D Discrete Cosine Transform for luminance and chrominance components. Checks pipeline operation, timing, and coefficient outputs.
+### Test Cases
+* Ramp Pattern: `data_in = i` for i in 0 to 63
+* Constant Block: All values = 100
+* Checkerboard: Alternating 255 and 0
+### Input Vectors
+* Clock and Reset
+* `enable = 1` during input phase
+* `data_in [7:0]`: Serial 8-bit input over 64 cycles
+### Expected Outputs
+* `output_enable` asserts after pipeline latency
+* 64 coefficients: `Z11_final` to `Z88_final`
+* At least one coefficient should be non-zero
+* Visual inspection or pass/fail log based on output
+
+---
+
+## `tb_y_quantizer`, `tb_cb_quantizer`, `tb_cr_quantizer`
+### Purpose
+Test quantization logic for Y, Cb, and Cr DCT blocks. Ensures pipelined quantization with reciprocal quantization matrix is correctly applied.
+### Test Cases
+* Above diagonal: Large values (200, 210...)
+* Diagonal: Constant value 50
+* Below diagonal: Small signed values (-1, 0, 1)
+### Input Vectors
+* Clock and Reset
+* `Z[8][8]`: 11-bit signed DCT coefficients
+* `enable = 1` to start quantization
+### Expected Outputs
+* `Q[8][8]`: Quantized outputs
+* Asserted `out_enable`
+* Displayed matrix for manual verification
+
+---
+
+## `y_huff_tb`, `cb_huff_tb`, `cr_huff_tb`
+### Purpose
+Validate Huffman encoding of quantized DCT blocks for Y, Cb, Cr. Checks bitstream formation and control signaling.
+### Test Cases
+* Standard quantized input block with DC + AC coefficients
+* All-zero AC run
+* High magnitude DC offset
+### Input Vectors
+* Clock and Reset
+* `X11`–`X88`: 11-bit signed coefficients
+* `enable = 1` to trigger encoding
+### Expected Outputs
+* `JPEG_bitstream [31:0]`: Huffman-encoded data
+* `data_ready = 1` when valid output available
+* `end_of_block_output` asserted at block end
+
+---
+
+## `tb_fifo_out`
+### Purpose
+Test final bitstream packager. Verifies interleaving, alignment, and FIFO register tracking.
+### Test Cases
+* Stream of 24-bit dummy JPEG segments
+* Varying enable pulses
+* Alignment edge cases
+### Input Vectors
+* Clock and Reset
+* `data_in [23:0]`: 10 test values (e.g. 123456, 123457...)
+* `enable = 1` to write to FIFO
+### Expected Outputs
+* `JPEG_bitstream [31:0]`: Padded, aligned output
+* `data_ready = 1` when valid
+* `orc_reg`: Register count tracking state
+* Output is printed and checked for byte alignment
+
+---
+## `tb_sync_fifo_32`
+### Purpose
+Verify 32-bit synchronous FIFO. Validates write/read functionality and `fifo_empty` signal.
+### Test Cases
+* Write: 10, 20, 30, 40
+* Read in same order
+* Empty FIFO check after reads
+### Input Vectors
+* Clock and Reset
+* `write_enable = 1` with `write_data`
+* `read_enable = 1` when ready
+### Expected Outputs
+* `read_data` matches input order
+* `rdata_valid = 1` during reads
+* `fifo_empty = 1` at end
+* Pass/Fail message printed
+
+---
+## `tb_sync_fifo_ff`
+
+### Purpose
+Verify 91-bit FIFO with `rollover_write` behavior. Designed for special pipelined skip-write operations.
+### Test Cases
+* Write sequence with rollover
+* Readback with skipped entries
+### Input Vectors
+* Clock and Reset
+* `write_data [90:0]`
+* `rollover_write = 1` on selected cycles
+### Expected Outputs
+* FIFO skips or bubbles inserted
+* Data read in expected order
+* Valid signal toggled accordingly
 
 ---
 
