@@ -12,6 +12,7 @@
 // Date:11th July,2025.
 
 `timescale 1ns / 100ps
+
 module y_dct (
     input logic clk,
     input logic rst,
@@ -58,15 +59,15 @@ logic [24:0] Y21_final_diff, Y31_final_diff, Y41_final_diff, Y51_final_diff,
 // Y11_final (25 bits), after rounding to 12 bits, needs sign extension to 32 for multiplication.
 logic [12:0] Y11_final_1, Y21_final_1, Y31_final_1, Y41_final_1,
              Y51_final_1, Y61_final_1, Y71_final_1, Y81_final_1;
+    
 // Y_final_2 are sign-extended and delayed for multiplication in Z_temp
 logic [31:0] Y11_final_2, Y21_final_2, Y31_final_2, Y41_final_2,
              Y51_final_2, Y61_final_2, Y71_final_2, Y81_final_2;
+    
 // Y_final_3 and Y_final_4 for pipeline delay
 logic [31:0] Y11_final_3, Y11_final_4; // Assuming only Y11 needs this deep a pipeline for now
 
 // Z_temp (32 bits): (13-bit Y_final_2 sign extended to 32) * (17-bit TiX_mul_input) -> max 49 bits.
-// Your Z_temp is 31:0, which might truncate results if the full range is needed. Re-evaluate if 32 bits is enough.
-// (Example: 2^12 * 2^16 ~ 2^28, so 32 bits should be sufficient if Y_final_2[12:0] is the input)
 logic [31:0] Z_temp_11, Z_temp_12, Z_temp_13, Z_temp_14,
              Z_temp_15, Z_temp_16, Z_temp_17, Z_temp_18,
              Z_temp_21, Z_temp_22, Z_temp_23, Z_temp_24,
@@ -85,9 +86,7 @@ logic [31:0] Z_temp_11, Z_temp_12, Z_temp_13, Z_temp_14,
              Z_temp_85, Z_temp_86, Z_temp_87, Z_temp_88;
 
 // Z accumulators (27 bits): If Z_temp is 32 bits, and you sum 8 of them, max is 32+3=35 bits.
-// Your Z is 26:0, which is 27 bits. This will truncate the sum.
-// Please check the required bit width carefully based on your DCT's dynamic range.
-logic [34:0] Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, // Increased width to avoid truncation for sum of 8x 32-bit values
+logic [34:0] Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18,
              Z21, Z22, Z23, Z24, Z25, Z26, Z27, Z28,
              Z31, Z32, Z33, Z34, Z35, Z36, Z37, Z38,
              Z41, Z42, Z43, Z44, Z45, Z46, Z47, Z48,
@@ -111,9 +110,8 @@ logic [2:0] count; // Counts 0 to 7 within each 8-sample row/column
 logic [2:0] count_of; // Counts 0 to 7 for 8x8 blocks (i.e., column index for 2D IDCT)
 
 // Pipeline control flags - these need careful timing to align with your pipeline stages
-// `enable_1` is already in use, so `enable` passes through it.
-// `block_end` signal indicates the last sample of a 64-sample block
 logic block_end;
+    
 // Pipeline registers for control signals
 logic enable_pipe1, enable_pipe2, enable_pipe3, enable_pipe4;
 logic count_of_pipe1, count_of_pipe2, count_of_pipe3, count_of_pipe4;
@@ -124,7 +122,6 @@ logic output_enable_reg;
 
 // Assign output_enable directly from the registered signal
 assign output_enable = !rst && output_enable_reg;
-
 
 // --- Cycle Counter and Pipeline Control Logic ---
 always @(posedge clk) begin
@@ -151,7 +148,7 @@ always @(posedge clk) begin
         enable_pipe3 <= enable_pipe2;
         enable_pipe4 <= enable_pipe3;
 
-        data_reg <= data_in; // Correctly pipeline data_in at the very first stage
+        data_reg <= data_in; 
 
         if (cycle_count == 63) begin
             cycle_count <= 0;
@@ -192,7 +189,6 @@ always @(posedge clk) begin
     end
 end
 
-
 // --- DCT Matrix Entries (Combinational for simplicity, or can be registered) ---
 // For a real DCT, these values are typically loaded from a ROM or computed based on 'k'
 // for a 2D DCT.
@@ -206,10 +202,6 @@ end
 
 // --- Inverse DCT Matrix Entries (Combinational for simplicity) ---
 // These are the coefficients for the inverse transform.
-// As noted before, the selection logic `case (count_of_copy)` or `case (count_of_pipeX)` needs to
-// correctly provide the 64 unique IDCT coefficients based on the current (u,v) output pixel.
-// The current setup looks like it only provides 8 unique 'columns' of coefficients, which is
-// highly suspicious for a true 2D IDCT. You need to verify this against your IDCT algorithm.
 always_comb begin
     Ti1 = 5793;
     Ti21 = 8035; Ti22 = 6811; Ti23 = 4551; Ti24 = 1598;
@@ -218,10 +210,6 @@ always_comb begin
     Ti52 = -5793;
 
     // This section is critical and needs re-evaluation for a correct 2D IDCT implementation.
-    // The coefficients `TiX_mul_input` should be selected based on both 'u' (row) and 'v' (column)
-    // of the Z(u,v) output being calculated, effectively forming an 8x8 matrix of coefficients.
-    // The current `count_of_pipeX` only effectively indexes one dimension.
-    // This is a placeholder using your original structure.
     case (count_of_pipe4) // Using count_of_pipe4 to align with Z_temp computation stage
         3'b000: Ti2_mul_input = Ti28;
         3'b001: Ti2_mul_input = Ti21;
@@ -307,7 +295,6 @@ always_comb begin
     endcase
 end
 
-
 // --- Y_temp_X and Y_X Accumulations (First DCT pass, Row-wise) ---
 // This section calculates Y coefficients. These would typically be the 1D DCT results.
 always @(posedge clk) begin
@@ -356,9 +343,6 @@ always @(posedge clk) begin
 end
 
 // --- Y_mul_input Selection ---
-// These coefficient selectors should ideally be registered or part of a more explicit FSM
-// to ensure correct timing with the data pipeline. For now, kept as original `always_comb`.
-// If `T` values are constant, these `always_comb` blocks imply fixed multipliers based on `count`.
 always_comb begin : Y2_mul_input_selection
     case (count_pipe1) // Using count_pipe1 to align with Y_temp computation
         3'b000: Y2_mul_input = T21;
@@ -457,9 +441,7 @@ always_comb begin : Y8_mul_input_selection
     endcase
 end
 
-
 // --- Y_final Centering and Pipelining (Pipelined stages after 1D DCT accumulation) ---
-// These stages seem to implement part of the IDCT or a centering operation.
 // The constant 25'd5932032 indicates a fixed offset, likely related to input range or scaling.
 always @(posedge clk) begin
     if (rst) begin
@@ -474,9 +456,7 @@ always @(posedge clk) begin
     end else if (enable_pipe2) begin // Ensure this stage is enabled
         // Y11_final is shifted by a constant
         Y11_final <= Y11 - 25'd5932032; // This is applied on every relevant clock cycle, not just block 0
-
-        // YX1_final and YX1_final_prev for difference calculation
-        // These should be updated when the 8-point accumulation for their respective YX1 completes.
+        // YX1_final and YX1_final_prev for difference calculation.These should be updated when the 8-point accumulation for their respective YX1 completes.
         // Assuming `count_pipe2 == 7` means the YX1 values are ready from the previous stage.
         if (count_pipe2 == 7) begin // End of an 8-point accumulation
             Y21_final <= Y21; Y21_final_prev <= Y21_final;
@@ -509,10 +489,8 @@ always @(posedge clk) begin
         end
     end
 end
-
-
-// --- Rounding Stage (Y_final_1, Y_final_2, Y_final_3, Y_final_4) ---
-// This stage prepares the Y coefficients for the second IDCT pass (multiplication with Ti coefficients).
+    
+    // --- Rounding Stage (Y_final_1, Y_final_2, ..)This stage prepares the Y coefficients for the second IDCT pass (multiplication with Ti coefficients).
 always @(posedge clk) begin
     if (rst) begin
         Y11_final_1 <= 0; Y21_final_1 <= 0; Y31_final_1 <= 0; Y41_final_1 <= 0;
@@ -552,10 +530,8 @@ always @(posedge clk) begin
     end
 end
 
-
-// --- Z_temp Assignments (Multiplication stage of IDCT) ---
-// These calculations are part of the 2D IDCT, typically column-wise.
-// They use the pipelined Y values and the inverse DCT coefficients.
+    // --- Z_temp Assignments (Multiplication stage of IDCT) ---.These calculations are part of the 2D IDCT, typically column-wise.
+    //They use the pipelined Y values and the inverse DCT coefficients.
 always @(posedge clk) begin
     if (rst) begin
         Z_temp_11 <= 0; Z_temp_12 <= 0; Z_temp_13 <= 0; Z_temp_14 <= 0;
@@ -575,11 +551,10 @@ always @(posedge clk) begin
         Z_temp_81 <= 0; Z_temp_82 <= 0; Z_temp_83 <= 0; Z_temp_84 <= 0;
         Z_temp_85 <= 0; Z_temp_86 <= 0; Z_temp_87 <= 0; Z_temp_88 <= 0;
     end else if (enable_pipe4) begin // Enable this stage when Y_final_4, etc., are valid
-        // Multiplications for the Z_temps
-        // Assuming Y11_final_4 is for Z1X, Y21_final_2 for Z2X, etc.
+        // Multiplications for the Z_temps.Assuming Y11_final_4 is for Z1X, Y21_final_2 for Z2X, etc.
         // This is a direct translation of your original assignments.
         Z_temp_11 <= Y11_final_4 * Ti1;
-        Z_temp_12 <= Y11_final_4 * Ti2_mul_input; // TiX_mul_input selection is critical here
+        Z_temp_12 <= Y11_final_4 * Ti2_mul_input;
         Z_temp_13 <= Y11_final_4 * Ti3_mul_input;
         Z_temp_14 <= Y11_final_4 * Ti4_mul_input;
         Z_temp_15 <= Y11_final_4 * Ti5_mul_input;
@@ -645,9 +620,7 @@ always @(posedge clk) begin
     end
 end
 
-
-// --- Z Accumulators (Second DCT pass, Column-wise) ---
-// These accumulate the Z_temp values.
+// --- Z Accumulators (Second DCT pass, Column-wise) --- These accumulate the Z_temp values.
 always @(posedge clk) begin
     if (rst) begin
         Z11 <= 0; Z12 <= 0; Z13 <= 0; Z14 <= 0; Z15 <= 0; Z16 <= 0; Z17 <= 0; Z18 <= 0;
@@ -699,8 +672,7 @@ always @(posedge clk) begin
 end
 
 // --- Final Output Rounding and Saturation (to 11-bit output) ---
-// The rounding logic assumes a 16-bit fractional part (bit 15).
-// The output is 11-bit. If Z is 35 bits, Z[26:16] is 11 bits. This aligns.
+// The rounding logic assumes a 16-bit fractional part (bit 15).The output is 11-bit. If Z is 35 bits, Z[26:16] is 11 bits. This aligns.
 always @(posedge clk) begin
     if (rst) begin
         Z11_final <= 0; Z12_final <= 0; Z13_final <= 0; Z14_final <= 0;
@@ -720,8 +692,7 @@ always @(posedge clk) begin
         Z81_final <= 0; Z82_final <= 0; Z83_final <= 0; Z84_final <= 0;
         Z85_final <= 0; Z86_final <= 0; Z87_final <= 0; Z88_final <= 0;
     end else if (output_enable_reg) begin // Assert when the final result is ready
-        // Rounding logic for 11-bit output
-        // Z[15] is the fractional bit, Z[26:16] is the integer part
+        // Rounding logic for 11-bit output,Z[15] is the fractional bit, Z[26:16] is the integer part
         Z11_final <= Z11[15] ? Z11[26:16] + 1 : Z11[26:16];
         Z12_final <= Z12[15] ? Z12[26:16] + 1 : Z12[26:16];
         Z13_final <= Z13[15] ? Z13[26:16] + 1 : Z13[26:16];
@@ -760,7 +731,7 @@ always @(posedge clk) begin
         Z54_final <= Z54[15] ? Z54[26:16] + 1 : Z54[26:16];
         Z55_final <= Z55[15] ? Z55[26:16] + 1 : Z55[26:16];
         Z56_final <= Z56[15] ? Z56[26:16] + 1 : Z56[26:16];
-        Z57_final <= Z57[15] ? Z57[26:16] + 1 : Z57[26:16]; // Corrected the bit slice to 26:16
+        Z57_final <= Z57[15] ? Z57[26:16] + 1 : Z57[26:16];
         Z58_final <= Z58[15] ? Z58[26:16] + 1 : Z58[26:16];
         Z61_final <= Z61[15] ? Z61[26:16] + 1 : Z61[26:16];
         Z62_final <= Z62[15] ? Z62[26:16] + 1 : Z62[26:16];
