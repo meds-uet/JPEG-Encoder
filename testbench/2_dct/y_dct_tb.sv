@@ -1,3 +1,28 @@
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Module Name: y_dct_tb
+// Description:
+//    This testbench is designed to verify the functionality of the `y_dct` module,
+//    which performs the Discrete Cosine Transform on 8x8 blocks of Y (Luma) data.
+//    It provides clock and reset signals, and streams 8-bit `data_in` samples
+//    to the DUT to form 8x8 blocks. The testbench drives the `enable` signal
+//    to control the start and end of data input for each block.
+//
+//    The `y_dct_tb` monitors the 64 individual 11-bit output coefficients (`Z11_final` to `Z88_final`)
+//    and the `output_enable` flag from the `y_dct` DUT. It applies a simple
+//    incrementing data pattern for a specified number of 8x8 blocks. After
+//    inputting each block, the testbench waits for a sufficient number of clock
+//    cycles to allow the DUT's internal pipeline to process the data and
+//    assert `output_enable`. A basic self-check is performed to ensure that
+//    the output coefficients are not all zero when `output_enable` is high.
+//    The testbench displays simulation time, input data, and key output values
+//    for verification purposes.
+//
+// Author:Rameen
+// Date:21st July,2025.
+
 `timescale 1ns / 100ps // Standard for test benches: 1ns precision, 1ps resolution
 
 module y_dct_tb;
@@ -13,7 +38,7 @@ module y_dct_tb;
     logic [10:0] Z15_final, Z16_final, Z17_final, Z18_final;
     logic [10:0] Z21_final, Z22_final, Z23_final, Z24_final;
     logic [10:0] Z25_final, Z26_final, Z27_final, Z28_final;
-    logic [10:0] Z31_final, Z32_final, Z33_final, Z34_final; // Corrected Z34_final
+    logic [10:0] Z31_final, Z32_final, Z33_final, Z34_final; 
     logic [10:0] Z35_final, Z36_final, Z37_final, Z38_final;
     logic [10:0] Z41_final, Z42_final, Z43_final, Z44_final;
     logic [10:0] Z45_final, Z46_final, Z47_final, Z48_final;
@@ -44,7 +69,7 @@ module y_dct_tb;
         .Z15_final(Z15_final), .Z16_final(Z16_final), .Z17_final(Z17_final), .Z18_final(Z18_final),
         .Z21_final(Z21_final), .Z22_final(Z22_final), .Z23_final(Z23_final), .Z24_final(Z24_final),
         .Z25_final(Z25_final), .Z26_final(Z26_final), .Z27_final(Z27_final), .Z28_final(Z28_final),
-        .Z31_final(Z31_final), .Z32_final(Z32_final), .Z33_final(Z33_final), .Z34_final(Z34_final), // Corrected here
+        .Z31_final(Z31_final), .Z32_final(Z32_final), .Z33_final(Z33_final), .Z34_final(Z34_final), 
         .Z35_final(Z35_final), .Z36_final(Z36_final), .Z37_final(Z37_final), .Z38_final(Z38_final),
         .Z41_final(Z41_final), .Z42_final(Z42_final), .Z43_final(Z43_final), .Z44_final(Z44_final),
         .Z45_final(Z45_final), .Z46_final(Z46_final), .Z47_final(Z47_final), .Z48_final(Z48_final),
