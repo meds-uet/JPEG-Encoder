@@ -17,103 +17,75 @@
 // Date:20th July,2025.
 
 `timescale 1ns / 100ps
-
+`include "rgb2ycbcr_constants.svh"
 module tb_rgb2ycrcb;
 
-    // DUT inputs
-    logic clk;
-    logic rst;
-    logic enable;
-    logic [23:0] data_in;
+  // DUT I/O
+  logic clk, rst, enable;
+  logic [23:0] data_in;
+  logic [23:0] data_out;
+  logic enable_out;
 
-    // DUT outputs
-    logic [23:0] data_out;
-    logic enable_out;
+  // Instantiate the DUT
+ rgb2ycrcb dut (
+    .clk(clk),
+    .rst(rst),
+    .enable(enable),
+    .data_in(data_in),
+    .data_out(data_out),
+    .enable_out(enable_out)
+  );
 
-    // Internal testbench variables
-    integer valid_count;
-    integer outputs_expected;
+  // Clock generation
+  always #5 clk = ~clk;
 
-    // Instantiate the DUT
-    rgb2ycrcb dut (
-        .clk(clk),
-        .rst(rst),
-        .enable(enable),
-        .data_in(data_in),
-        .data_out(data_out),
-        .enable_out(enable_out)
-    );
+  // Apply RGB input
+  task apply_rgb(input [7:0] r, g, b);
+    begin
+      data_in = {b, g, r};  // Format: {B,G,R}
+      enable = 1;
+      @(posedge clk);
+      enable = 0;
 
-    // Clock generation (100 MHz)
-    always #5 clk = ~clk;
+      // Wait for RTL pipeline latency (3 clocks)
+      repeat (3) @(posedge clk);
 
-    // Task to apply RGB input
-    task apply_rgb(input [7:0] R, input [7:0] G, input [7:0] B);
-        begin
-            @(negedge clk);
-            enable  = 1;
-            data_in = {B, G, R};
-            @(negedge clk);
-            enable  = 0;
-        end
-    endtask
-
-    // Initial block
-    initial begin
-        $display("Starting RGB to YCbCr Testbench...");
-
-        // Initialize
-        clk = 0;
-        rst = 1;
-        enable = 0;
-        data_in = 24'h0;
-        valid_count = 0;
-        outputs_expected = 7;
-
-        // Reset
-        repeat (2) @(posedge clk);
-        rst = 0;
-
-        // Apply test vectors with delay between each for pipeline
-        apply_rgb(8'd255, 8'd0,   8'd0);     // Red
-        repeat (3) @(posedge clk);
-
-        apply_rgb(8'd0,   8'd255, 8'd0);     // Green
-        repeat (3) @(posedge clk);
-
-        apply_rgb(8'd0,   8'd0,   8'd255);   // Blue
-        repeat (3) @(posedge clk);
-
-        apply_rgb(8'd255, 8'd255, 8'd255);   // White
-        repeat (3) @(posedge clk);
-
-        apply_rgb(8'd0,   8'd0,   8'd0);     // Black
-        repeat (3) @(posedge clk);
-
-        apply_rgb(8'd128, 8'd128, 8'd128);   // Gray
-        repeat (3) @(posedge clk);
-
-        apply_rgb(8'd50,  8'd100, 8'd150);   // Custom
-        repeat (3) @(posedge clk);
-
-        // Wait and capture outputs
-        repeat (100) begin
-            @(posedge clk);
-            if (enable_out) begin
-                $display("RGB: R=%0d G=%0d B=%0d => Y=%0d Cb=%0d Cr=%0d",
-                    dut.R, dut.G, dut.B,
-                    data_out[7:0],       // Y
-                    data_out[15:8],      // Cb
-                    data_out[23:16]      // Cr
-                );
-                valid_count++;
-                if (valid_count == outputs_expected)
-                    break;
-            end
-        end
-
-        $display("Testbench completed. Valid outputs received: %0d", valid_count);
-        $finish;
+      if (enable_out) begin
+        $display("# Time %4t | RGB: R=%0d G=%0d B=%0d --> YCbCr: Y=%0d, Cb=%0d, Cr=%0d",
+                 $time, r, g, b,
+                 data_out[7:0], data_out[15:8], data_out[23:16]);
+      end
     end
+  endtask
+
+  // Function to generate random byte (0–255)
+  function [7:0] rand8();
+    return $urandom_range(0, 255);
+  endfunction
+
+  // Main simulation
+  initial begin
+    clk = 0; rst = 1; enable = 0; data_in = 0;
+
+    // Reset for a few cycles
+    repeat (3) @(posedge clk);
+    rst = 0;
+
+    // Fixed edge cases
+    apply_rgb(8'd0,   8'd0,   8'd0);     // Black
+    apply_rgb(8'd255, 8'd255, 8'd255);   // White
+    apply_rgb(8'd255, 8'd0,   8'd0);     // Red
+    apply_rgb(8'd0,   8'd255, 8'd0);     // Green
+    apply_rgb(8'd0,   8'd0,   8'd255);   // Blue
+    apply_rgb(8'd128, 8'd128, 8'd128);   // Mid-gray
+
+    // Random RGB values (10 samples)
+    repeat (10) begin
+      apply_rgb(rand8(), rand8(), rand8());
+    end
+
+    $display("# All tests completed.");
+    $finish;
+  end
 
 endmodule
