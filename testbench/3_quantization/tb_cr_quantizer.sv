@@ -3,88 +3,117 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Module Name: tb_cr_quantizer
+//
 // Description:
-//    This testbench is designed to verify the functionality of the `cr_quantizer` module,
-//    which performs quantization on 8x8 blocks of Discrete Cosine Transform (DCT)
-//    coefficients for the Cr (Chroma Red) component. The DUT expects 11-bit signed input
-//    DCT coefficients (`Z`) and outputs 11-bit signed quantized coefficients (`Q`).
+//    This testbench verifies the functionality of the `cr_quantizer` module,
+//    which performs quantization on 8x8 blocks of DCT coefficients for the Cr
+//    (chrominance-red) component of a JPEG image. It applies reset, feeds test
+//    patterns, and compares output with expected values calculated using the
+//    standard JPEG chroma quantization matrix and fixed-point math.
 //
-//    The testbench establishes a clock and applies a reset sequence to the DUT. It uses
-//    a parameterized quantization matrix (set to all 1s in this testbench for simplified
-//    verification, implying Q[i][j] will be equal to Z[i][j]). The `Z` input matrix
-//    is populated with a custom test pattern: increasing large values for elements above
-//    the secondary diagonal, a constant value on the secondary diagonal, and small
-//    varying values below it. After providing input and asserting `enable`, the testbench
-//    waits for the `out_enable` signal from the DUT, indicating completion of the
-//    quantization process. Finally, it displays the entire 8x8 `Q` (quantized) output
-//    matrix for visual inspection.
-//
-// Author:Navaal Noshi
-// Date:21st July,2025.
+// Author: Navaal Noshi
+// Date: 29th July, 2025
 
 `timescale 1ns / 100ps
+`include "quantizer_constants.sv"
 
 module tb_cr_quantizer;
 
-    logic clk = 0;
-    logic rst;
-    logic enable;
-    logic signed [10:0] Z[8][8];
-    logic signed [10:0] Q[8][8];
-    logic out_enable;
+  import QUANTIZER_constants::*;
 
-    // Use quantization matrix of all 1s (4096/Q = 4096)
-    localparam int Q_MATRIX[8][8] = '{default: 1};
+  logic clk, rst, enable;
+  logic signed [10:0] Z [0:7][0:7];
+  logic signed [10:0] Q [0:7][0:7];
+  logic out_enable;
 
-    // Instantiate the DUT
-    cr_quantizer #(.Q_MATRIX(Q_MATRIX)) dut (
-        .clk(clk),
-        .rst(rst),
-        .enable(enable),
-        .Z(Z),
-        .Q(Q),
-        .out_enable(out_enable)
-    );
+  // Instantiate DUT
+  cr_quantizer dut (
+    .clk(clk),
+    .rst(rst),
+    .enable(enable),
+    .Z(Z),
+    .Q(Q),
+    .out_enable(out_enable)
+  );
 
-    // Clock generation
-    always #5 clk = ~clk;
+  // Clock generation
+  always #5 clk = ~clk;
 
-    initial begin : testbench
-        integer i, j, hi;
+  logic signed [10:0] test_input [0:7][0:7];
+  logic signed [10:0] expected_output [0:7][0:7];
 
-        $display("=== Test: cr_quantizer — Opposite of secondary diagonal ===");
-
-        rst = 1;
-        enable = 0;
-        #12; rst = 0; #10;
-
-        // Initialize input matrix: upper half = large, diagonal = 50, lower = small
-        hi = 200;
-        for (i = 0; i < 8; i++) begin
-            for (j = 0; j < 8; j++) begin
-                if (i + j < 7)
-                    Z[i][j] = hi++;
-                else if (i + j == 7)
-                    Z[i][j] = 50;
-                else
-                    Z[i][j] = (i + j) % 3 - 1; // -1, 0, 1 pattern
-            end
-        end
-
-        enable = 1; #10;
-        enable = 0;
-
-        wait(out_enable);
-        #10;
-
-        $display("Quantized Output:");
-        for (i = 0; i < 8; i++) begin
-            for (j = 0; j < 8; j++)
-                $write("%0d ", Q[i][j]);
-            $write("\n");
-        end
-
-        #10 $finish;
+  // Compute expected output using (Z * 4096 / Q[i][j]) >> 12 with rounding
+  task automatic compute_expected_output;
+    for (int i = 0; i < 8; i++) begin
+      for (int j = 0; j < 8; j++) begin
+        int qq = 4096 / Q_CHROMA[i][j];
+        int temp = test_input[i][j] * qq;
+        expected_output[i][j] = (temp[11]) ? (temp >>> 12) + 1 : (temp >>> 12);
+      end
     end
+  endtask
 
+  // Print input, expected, and output matrices
+  task automatic print_all_matrices;
+    $display("\n%-70s %-70s %-150s", "Input Matrix (Z)", "Expected Output", "Actual Output (Q)");
+    $display("---------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+    for (int i = 0; i < 8; i++) begin
+      for (int j = 0; j < 8; j++) $write("%6d ", test_input[i][j]);
+      $write("   ");
+      for (int j = 0; j < 8; j++) $write("%6d ", expected_output[i][j]);
+      $write("   ");
+      for (int j = 0; j < 8; j++) $write("%6d ", Q[i][j]);
+      $write("\n");
+    end
+  endtask
+
+  task automatic run_test(string testname);
+    $display("\n===============================");
+    $display(" Running Test: %s", testname);
+    $display("===============================\n");
+
+    rst = 1; enable = 0; #10;
+    rst = 0; #10;
+
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        Z[i][j] = test_input[i][j];
+
+    enable = 1; #10;
+    enable = 0;
+
+    wait (out_enable); #10;
+
+    print_all_matrices();
+  endtask
+
+  initial begin
+    clk = 0;
+
+    // Test 1: All 1023
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = 11'sd1023;
+
+    compute_expected_output();
+    run_test("All 1023 Values");
+
+    // Test 2: Ramp
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = i * 8 + j;
+
+    compute_expected_output();
+    run_test("Ramp Pattern");
+
+    // Test 3: Alternating +1023/-1024
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = ((i + j) % 2 == 0) ? 1023 : -1024;
+
+    compute_expected_output();
+    run_test("Checkerboard Pattern");
+
+    $finish;
+  end
 endmodule
