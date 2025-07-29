@@ -1,9 +1,14 @@
-
-/* This module is the Huffman encoder.  It takes in the quantized outputs
-from the quantizer, and creates the Huffman codes from these value.  The 
-output from this module is the jpeg code of the actual pixel data.  The jpeg
-file headers will need to be generated separately.  The Huffman codes are constant, 
-and they can be changed by changing the parameters in this module. */
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module performs Huffman encoding for cb  data. It takes the quantized
+//    DCT coefficients for an 8x8 cb block and generates the corresponding variable-length
+//    Huffman codes, suitable for bitstream compression.
+//
+// Author:Rameen
+// Date:15th July,2025.
 
 `timescale 1ns / 100ps
 `include "cb_huff_constants.svh"
