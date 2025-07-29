@@ -20,7 +20,7 @@
 //    side-by-side in a horizontal format for easy visual verification.
 //
 // Author: Navaal Noshi
-// Date: 29th July, 2025
+// Date: 24th July, 2025
 
 `timescale 1ns / 100ps
 `include "quantizer_constants.svh"
