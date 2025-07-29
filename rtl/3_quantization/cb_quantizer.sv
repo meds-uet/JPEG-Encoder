@@ -14,9 +14,7 @@
 // Date: 29th July, 2025
 
 `timescale 1ns / 100ps
-
-`include "QUANTIZER_constants.sv"
-import QUANTIZER_constants::*;
+`include "quantizer_constants.svh"
 
 module cb_quantizer (
     input  logic clk, rst, enable,
