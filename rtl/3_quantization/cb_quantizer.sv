@@ -13,7 +13,11 @@
 // Author: Navaal Noshi
 // Date: 29th July, 2025
 
+
 `timescale 1ns / 100ps
+
+`include "QUANTIZER_constants.sv"
+import QUANTIZER_constants::*;
 
 module cb_quantizer (
     input  logic clk, rst, enable,
@@ -21,18 +25,13 @@ module cb_quantizer (
     output logic signed [10:0] Q [0:7][0:7],
     output logic out_enable
 );
+    
 
-    // Q_MATRIX is constant with all 1s (for testing purposes)
-    localparam int Q_MATRIX [0:7][0:7] = '{default: 1};
-
-    // QQ_MATRIX will store 4096 / Q_MATRIX[i][j], computed on reset
-    logic [15:0] QQ_MATRIX [0:7][0:7];
-
-    // Internal signals
-    logic signed [31:0] Z_ext   [0:7][0:7];   // Sign-extended input
-    logic signed [22:0] Z_temp  [0:7][0:7];   // Multiplied by reciprocal
-    logic signed [22:0] Z_temp1 [0:7][0:7];   // Buffered intermediate
-    logic [2:0] enable_pipe;                  // Enable pipeline stages
+    logic [15:0] QQ_MATRIX [0:7][0:7];  // Scaled reciprocal of Q_MATRIX
+    logic signed [31:0] Z_ext   [0:7][0:7];
+    logic signed [22:0] Z_temp  [0:7][0:7];
+    logic signed [22:0] Z_temp1 [0:7][0:7];
+    logic [2:0] enable_pipe;
 
     // Compute QQ_MATRIX = 4096 / Q_MATRIX[i][j]
     always_ff @(posedge clk) begin
