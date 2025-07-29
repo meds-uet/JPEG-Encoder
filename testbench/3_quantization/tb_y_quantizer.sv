@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE file for details.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Module Name: tb_y_quantizer
-//
 // Description:
 //    This testbench verifies the functionality of the `y_quantizer` module,
 //    which performs quantization on 8x8 blocks of DCT (Discrete Cosine Transform)
