@@ -12,14 +12,12 @@
 //    standard JPEG chroma quantization matrix and fixed-point math.
 //
 // Author: Navaal Noshi
-// Date: 29th July, 2025
+// Date: 25th July, 2025
 
 `timescale 1ns / 100ps
 `include "quantizer_constants.sv"
 
 module tb_cr_quantizer;
-
-  import QUANTIZER_constants::*;
 
   logic clk, rst, enable;
   logic signed [10:0] Z [0:7][0:7];
@@ -113,6 +111,13 @@ module tb_cr_quantizer;
 
     compute_expected_output();
     run_test("Checkerboard Pattern");
+    // Test: Random Values
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = $urandom_range(-1024, 1023);
+
+    compute_expected_output();
+    run_test("Random Values");
 
     $finish;
   end
