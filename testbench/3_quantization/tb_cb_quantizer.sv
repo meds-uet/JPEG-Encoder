@@ -22,10 +22,12 @@
 // Author: Navaal Noshi
 // Date: 29th July, 2025
 
-
 `timescale 1ns / 100ps
+`include "quantizer_constants.sv"
 
 module tb_cb_quantizer;
+
+  import QUANTIZER_constants::*;
 
   logic clk, rst, enable;
   logic signed [10:0] Z [0:7][0:7];
@@ -45,34 +47,21 @@ module tb_cb_quantizer;
   // Clock generation
   always #5 clk = ~clk;
 
-  // Test data and reference matrices
   logic signed [10:0] test_input [0:7][0:7];
   logic signed [10:0] expected_output [0:7][0:7];
-
-  // Same quantization matrix used in cb_quantizer
-  int Q_MATRIX [0:7][0:7] = '{
-    '{16, 11, 10, 16, 24, 40, 51, 61},
-    '{12, 12, 14, 19, 26, 58, 60, 55},
-    '{14, 13, 16, 24, 40, 57, 69, 56},
-    '{14, 17, 22, 29, 51, 87, 80, 62},
-    '{18, 22, 37, 56, 68,109,103, 77},
-    '{24, 35, 55, 64, 81,104,113, 92},
-    '{49, 64, 78, 87,103,121,120,101},
-    '{72, 92, 95, 98,112,100,103, 99}
-  };
 
   // Compute expected output using (Z * 4096 / Q[i][j]) >> 12 with rounding
   task automatic compute_expected_output;
     for (int i = 0; i < 8; i++) begin
       for (int j = 0; j < 8; j++) begin
-        int qq = 4096 / Q_MATRIX[i][j];
+        int qq = 4096 / Q_CHROMA[i][j];
         int temp = test_input[i][j] * qq;
         expected_output[i][j] = (temp[11]) ? (temp >>> 12) + 1 : (temp >>> 12);
       end
     end
   endtask
 
-  // Horizontally print Z, expected_output, and Q
+  // Print input, expected, and output matrices
   task automatic print_all_matrices;
     $display("\n%-70s %-70s %-150s", "Input Matrix (Z)", "Expected Output", "Actual Output (Q)");
     $display("---------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -86,36 +75,30 @@ module tb_cb_quantizer;
     end
   endtask
 
-  // Single test
   task automatic run_test(string testname);
     $display("\n===============================");
     $display(" Running Test: %s", testname);
     $display("===============================\n");
 
-    // Reset
     rst = 1; enable = 0; #10;
     rst = 0; #10;
 
-    // Apply input
     for (int i = 0; i < 8; i++)
       for (int j = 0; j < 8; j++)
         Z[i][j] = test_input[i][j];
 
-    // Enable pulse
     enable = 1; #10;
     enable = 0;
 
-    // Wait for pipeline
     wait (out_enable); #10;
 
     print_all_matrices();
   endtask
 
-  // Main
   initial begin
     clk = 0;
 
-    // Test: All 1023
+    // Test 1: All 1023
     for (int i = 0; i < 8; i++)
       for (int j = 0; j < 8; j++)
         test_input[i][j] = 11'sd1023;
@@ -123,7 +106,7 @@ module tb_cb_quantizer;
     compute_expected_output();
     run_test("All 1023 Values");
 
-    // Test: Ramp
+    // Test 2: Ramp
     for (int i = 0; i < 8; i++)
       for (int j = 0; j < 8; j++)
         test_input[i][j] = i * 8 + j;
@@ -131,7 +114,7 @@ module tb_cb_quantizer;
     compute_expected_output();
     run_test("Ramp Pattern");
 
-    // Test: Alternating +1023/-1024
+    // Test 3: Alternating +1023/-1024
     for (int i = 0; i < 8; i++)
       for (int j = 0; j < 8; j++)
         test_input[i][j] = ((i + j) % 2 == 0) ? 1023 : -1024;
@@ -141,5 +124,4 @@ module tb_cb_quantizer;
 
     $finish;
   end
-
 endmodule
