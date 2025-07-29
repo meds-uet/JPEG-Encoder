@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Description:
-//   This module performs quantization on an 8x8 block of luminance (Y) values
-//   after 2D Discrete Cosine Transform (DCT). Quantization reduces the precision
-//   of DCT coefficients, enabling lossy compression for JPEG encoding.
-//   Instead of dividing each DCT coefficient by the corresponding value in a 
-//   quantization matrix (Q), this module precomputes reciprocals scaled by 4096,
-//   and performs multiplication followed by right-shift to approximate division.
+//   This module performs quantization on an 8x8 block of Cb (chrominance-blue)
+//   values after 2D Discrete Cosine Transform (DCT). Like the Y channel, the
+//   DCT coefficients are divided (quantized) by a matrix of constants. This
+//   is implemented by multiplying each DCT coefficient with a precomputed
+//   reciprocal value (scaled by 4096) followed by a right-shift.
+//   This step reduces DCT precision and achieves lossy compression.
 //
 // Author:Navaal Noshi
 // Date:11th July,2025.
