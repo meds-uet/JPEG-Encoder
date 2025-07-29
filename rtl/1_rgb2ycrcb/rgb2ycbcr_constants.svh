@@ -1,14 +1,17 @@
-`ifndef RGB2YCBCR_CONSTANTS_SVH
-`define RGB2YCBCR_CONSTANTS_SVH
-
-// -----------------------------------------------------------------------------
-// File: rgb2ycbcr_constants.svh
-// Description: Fixed-point constants for RGB to YCbCr color conversion
-//              using ITU-R BT.601 standard coefficients scaled by 2^13 or 2^14
-//              for hardware implementation.
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//   Fixed-point constants for RGB to YCbCr color conversion
+//   using ITU-R BT.601 standard coefficients scaled by 2^13 or 2^14
+//   for hardware implementation. 
+//
 // Author: Navaal Noshi
 // Date: 29th July, 2025
-// -----------------------------------------------------------------------------
+
+`ifndef RGB2YCBCR_CONSTANTS_SVH
+`define RGB2YCBCR_CONSTANTS_SVH
 
 // Coefficients scaled by 2^13 (8192) for fixed-point multiplication
 localparam logic [13:0] Y1  = 14'd4899;   // 0.299  * 8192
