@@ -26,9 +26,7 @@
 `include "quantizer_constants.sv"
 
 module tb_cb_quantizer;
-
-  import QUANTIZER_constants::*;
-
+  
   logic clk, rst, enable;
   logic signed [10:0] Z [0:7][0:7];
   logic signed [10:0] Q [0:7][0:7];
@@ -121,6 +119,14 @@ module tb_cb_quantizer;
 
     compute_expected_output();
     run_test("Checkerboard Pattern");
+    
+        // Test: Random Values
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = $urandom_range(-1024, 1023);
+
+    compute_expected_output();
+    run_test("Random Values");
 
     $finish;
   end
