@@ -25,62 +25,122 @@
 
 module tb_y_quantizer;
 
-    logic clk = 0;
-    logic rst;
-    logic enable;
-    logic signed [10:0] Z[0:7][0:7];
-    logic signed [10:0] Q[0:7][0:7];
-    logic out_enable;
+  logic clk, rst, enable;
+  logic signed [10:0] Z [0:7][0:7];
+  logic signed [10:0] Q [0:7][0:7];
+  logic out_enable;
 
-    y_quantizer dut (
-        .clk(clk),
-        .rst(rst),
-        .enable(enable),
-        .Z(Z),
-        .Q(Q),
-        .out_enable(out_enable)
-    );
+  y_quantizer dut (
+    .clk(clk),
+    .rst(rst),
+    .enable(enable),
+    .Z(Z),
+    .Q(Q),
+    .out_enable(out_enable)
+  );
 
-    // Clock generator
-    always #5 clk = ~clk;
+  always #5 clk = ~clk;
 
-    initial begin
-        int i, j;       // loop counters
-        int hi;         // high-value initializer
+  logic signed [10:0] test_input [0:7][0:7];
+  logic signed [10:0] expected_output [0:7][0:7];
 
-        $display("Test: Opposite of secondary diagonal — top = large, bottom = small");
+  // Reusable task: Apply Z and expected_output to DUT
+  task automatic run_test(string test_name);
+    begin
+      $display("\n=== Running Test: %s ===", test_name);
 
-        rst = 1;
-        enable = 0;
-        #12; rst = 0; #10;
+      // Reset
+      rst = 1; enable = 0;
+      #10;
+      rst = 0;
+      #10;
 
-        hi = 100;
-        for (i = 0; i < 8; i++) begin
-            for (j = 0; j < 8; j++) begin
-                if (i + j < 7)
-                    Z[i][j] = hi++;             // large values
-                else if (i + j == 7)
-                    Z[i][j] = 50;               // diagonal value
-                else
-                    Z[i][j] = (i + j) % 3 - 1;   // small: -1, 0, 1
-            end
-        end
+      // Apply test input to DUT
+      for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+          Z[i][j] = test_input[i][j];
 
-        enable = 1;
-        #10;
-        enable = 0;
+      // Enable signal (1-cycle pulse)
+      enable = 1;
+      #10;
+      enable = 0;
 
-        wait (out_enable);
-        #10;
+      // Wait for pipeline to finish
+      wait (out_enable == 1);
+      #10;
 
-        $display("Quantized Output:");
-        for (i = 0; i < 8; i++) begin
-            for (j = 0; j < 8; j++)
-                $write("%0d ", Q[i][j]);
-            $write("\n");
-        end
-
-        #10 $finish;
+      // Check results
+      check_results();
     end
+  endtask
+
+  // Generate expected output: Q = (Z * 4096) >>> 12
+  task automatic compute_expected_output;
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        expected_output[i][j] = (test_input[i][j] * 4096) >>> 12;
+  endtask
+
+  // Compare DUT output vs expected
+  task automatic check_results;
+    int errors = 0;
+    for (int i = 0; i < 8; i++) begin
+      for (int j = 0; j < 8; j++) begin
+        if (Q[i][j] !== expected_output[i][j]) begin
+          $display("Mismatch at [%0d][%0d]: Expected %0d, Got %0d", i, j, expected_output[i][j], Q[i][j]);
+          errors++;
+        end else begin
+          $display("Match at [%0d][%0d]: %0d", i, j, Q[i][j]);
+        end
+      end
+    end
+    if (errors == 0)
+      $display("Test Passed!");
+    else
+      $display("Test Failed with %0d mismatches", errors);
+  endtask
+
+ 
+  // Main testbench sequence
+  initial begin
+    clk = 0;
+
+    // Test 1: Ramp pattern (0 to 63)
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = i * 8 + j;
+    compute_expected_output();
+    run_test("Ramp Pattern");
+
+    // Test 2: All Zeros
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = 0;
+    compute_expected_output();
+    run_test("All Zeros");
+
+    // Test 3: All Maximum (+1023)
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = 11'sd1023;
+    compute_expected_output();
+    run_test("All Maximum");
+
+    // Test 4: All Minimum (-1024)
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = -11'sd1024;
+    compute_expected_output();
+    run_test("All Minimum");
+
+      // Test 5: Checkerboard (expected output should be +1023 and -1024)
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = ((i + j) % 2 == 0) ? 11'sd1023 : -11'sd1024;
+    compute_expected_output();
+    run_test("Checkerboard Pattern");
+
+    $finish;
+  end
 
 endmodule
