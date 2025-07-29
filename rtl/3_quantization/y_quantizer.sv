@@ -25,7 +25,6 @@ module y_quantizer (
     output logic out_enable
 );
 
-    // === Local copies ===
     logic [15:0] QQ_MATRIX [0:7][0:7];  // Scaled reciprocal of Q_MATRIX
     logic signed [31:0] Z_ext   [0:7][0:7];
     logic signed [22:0] Z_temp  [0:7][0:7];
