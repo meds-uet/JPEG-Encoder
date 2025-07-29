@@ -22,8 +22,8 @@
 // Author: Navaal Noshi
 // Date: 29th July, 2025
 
-
 `timescale 1ns / 100ps
+`include "quantizer_constants.svh"
 
 module tb_y_quantizer;
 
@@ -48,18 +48,6 @@ module tb_y_quantizer;
   // Test data and reference matrices
   logic signed [10:0] test_input [0:7][0:7];
   logic signed [10:0] expected_output [0:7][0:7];
-
-  // Same quantization matrix used in cb_quantizer
-  int Q_MATRIX [0:7][0:7] = '{
-    '{16, 11, 10, 16, 24, 40, 51, 61},
-    '{12, 12, 14, 19, 26, 58, 60, 55},
-    '{14, 13, 16, 24, 40, 57, 69, 56},
-    '{14, 17, 22, 29, 51, 87, 80, 62},
-    '{18, 22, 37, 56, 68,109,103, 77},
-    '{24, 35, 55, 64, 81,104,113, 92},
-    '{49, 64, 78, 87,103,121,120,101},
-    '{72, 92, 95, 98,112,100,103, 99}
-  };
 
   // Compute expected output using (Z * 4096 / Q[i][j]) >> 12 with rounding
   task automatic compute_expected_output;
@@ -139,6 +127,14 @@ module tb_y_quantizer;
     compute_expected_output();
     run_test("Checkerboard Pattern");
 
+    // Test: Random Values
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+        test_input[i][j] = $urandom_range(-1024, 1023);
+
+    compute_expected_output();
+    run_test("Random Values");
+    
     $finish;
   end
 endmodule
