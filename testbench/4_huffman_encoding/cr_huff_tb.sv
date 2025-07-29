@@ -23,6 +23,8 @@
 
 `timescale 1ns / 100ps
 
+`include "cr_huff_constants.svh"
+
 module cr_huff_tb;
 
     // Testbench signals
