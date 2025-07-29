@@ -106,11 +106,7 @@ logic Y83_et_zero, Y83_msb, Y84_et_zero, Y84_msb;
 logic Y85_et_zero, Y85_msb, Y86_et_zero, Y86_msb;
 logic Y87_et_zero, Y87_msb, Y88_et_zero, Y88_msb;
 logic Y12_et_zero_1, Y12_et_zero_2, Y12_et_zero_3, Y12_et_zero_4, Y12_et_zero_5;
-logic [10:0] Y_DC [0:11];
-logic [3:0] Y_DC_code_length [0:11];
-logic [15:0] Y_AC [0:161];
-logic [4:0] Y_AC_code_length [0:161];
-logic [7:0] Y_AC_run_code [0:250];
+
 logic [10:0] Y11_Huff, Y11_Huff_1, Y11_Huff_2;
 logic [15:0] Y12_Huff, Y12_Huff_1, Y12_Huff_2;
 logic [3:0] Y11_Huff_count, Y11_Huff_shift, Y11_Huff_shift_1, Y11_amp_shift, Y12_amp_shift;
@@ -133,7 +129,108 @@ logic third_8_all_0s, fourth_8_all_0s, fifth_8_all_0s, sixth_8_all_0s, seventh_8
 logic eighth_8_all_0s, end_of_block, code_15_0, zrl_et_15;
 
 logic [7:0] code_index = {zrl_2, Y12_bits};
-k
+
+// Inside your SystemVerilog module
+
+// === DC Code Lengths ===
+localparam int Y_DC_code_length [0:11] = '{
+  2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+};
+
+// === DC Huffman Codes ===
+localparam logic [10:0] Y_DC [0:11] = '{
+  11'b00000000000, 11'b01000000000, 11'b10000000000, 11'b11000000000,
+  11'b11100000000, 11'b11110000000, 11'b11111000000, 11'b11111100000,
+  11'b11111110000, 11'b11111111000, 11'b11111111100, 11'b11111111110
+};
+
+// === AC Code Lengths ===
+localparam int Y_AC_code_length [0:161] = '{
+  2, 2, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 7, 8,
+  8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11,
+  12, 12, 12, 12, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+  16, 16
+};
+
+/// === AC Huffman Codes ===
+localparam logic [15:0] Y_AC [0:161] = '{
+    16'h0000, 16'h4000, 16'h8000, 16'hA000,
+    16'hB000, 16'hC000, 16'hD000, 16'hD800,
+    16'hE000, 16'hE800, 16'hEC00, 16'hF000,
+    16'hF200, 16'hF400, 16'hF600, 16'hF800,
+    16'hF900, 16'hFA00, 16'hFB00, 16'hFB80,
+    16'hFC00, 16'hFC80, 16'hFD00, 16'hFD80,
+    16'hFDC0, 16'hFE00, 16'hFE40, 16'hFE80,
+    16'hFEC0, 16'hFEE0, 16'hFF00, 16'hFF20,
+    16'hFF40, 16'hFF50, 16'hFF60, 16'hFF70,
+    16'hFF80, 16'hFF82, 16'hFF83, 16'hFF84,
+    16'hFF85, 16'hFF86, 16'hFF87, 16'hFF88,
+    16'hFF89, 16'hFF8A, 16'hFF8B, 16'hFF8C,
+    16'hFF8D, 16'hFF8E, 16'hFF8F, 16'hFF90,
+    16'hFF91, 16'hFF92, 16'hFF93, 16'hFF94,
+    16'hFF95, 16'hFF96, 16'hFF97, 16'hFF98,
+    16'hFF99, 16'hFF9A, 16'hFF9B, 16'hFF9C,
+    16'hFF9D, 16'hFF9E, 16'hFF9F, 16'hFFA0,
+    16'hFFA1, 16'hFFA2, 16'hFFA3, 16'hFFA4,
+    16'hFFA5, 16'hFFA6, 16'hFFA7, 16'hFFA8,
+    16'hFFA9, 16'hFFAA, 16'hFFAB, 16'hFFAC,
+    16'hFFAD, 16'hFFAE, 16'hFFAF, 16'hFFB0,
+    16'hFFB1, 16'hFFB2, 16'hFFB3, 16'hFFB4,
+    16'hFFB5, 16'hFFB6, 16'hFFB7, 16'hFFB8,
+    16'hFFB9, 16'hFFBA, 16'hFFBB, 16'hFFBC,
+    16'hFFBD, 16'hFFBE, 16'hFFBF, 16'hFFC0,
+    16'hFFC1, 16'hFFC2, 16'hFFC3, 16'hFFC4,
+    16'hFFC5, 16'hFFC6, 16'hFFC7, 16'hFFC8,
+    16'hFFC9, 16'hFFCA, 16'hFFCB, 16'hFFCC,
+    16'hFFCD, 16'hFFCE, 16'hFFCF, 16'hFFD0,
+    16'hFFD1, 16'hFFD2, 16'hFFD3, 16'hFFD4,
+    16'hFFD5, 16'hFFD6, 16'hFFD7, 16'hFFD8,
+    16'hFFD9, 16'hFFDA, 16'hFFDB, 16'hFFDC,
+    16'hFFDD, 16'hFFDE, 16'hFFDF, 16'hFFE0,
+    16'hFFE1, 16'hFFE2, 16'hFFE3, 16'hFFE4,
+    16'hFFE5, 16'hFFE6, 16'hFFE7, 16'hFFE8,
+    16'hFFE9, 16'hFFEA, 16'hFFEB, 16'hFFEC,
+    16'hFFED, 16'hFFEE, 16'hFFEF, 16'hFFF0,
+    16'hFFF1, 16'hFFF2, 16'hFFF3, 16'hFFF4,
+    16'hFFF5, 16'hFFF6, 16'hFFF7, 16'hFFF8,
+    16'hFFF9, 16'hFFFA, 16'hFFFB, 16'hFFFC,
+    16'hFFFD, 16'hFFFE
+};
+
+
+// === AC Run-Length Huffman Mapping (Y_AC_run_code) ===
+// Format: (RUNLENGTH << 4) | SIZE, mapped to index 0–255
+// This array gives the Huffman table index for (RUNLENGTH, SIZE) used in AC coefficient encoding.
+
+localparam int Y_AC_run_code [0:255] = '{
+  // Index = (RUNLENGTH << 4) | SIZE
+  // Format: RUNLENGTH SIZE => Huffman Table Index
+
+   0,   1,  2,   3,   4,   5,   6,   7,   8,   9,  10,  11, 162, 162, 162, 162,  // 0x0_0 to 0x0_F
+  12,  13, 14,  15,  16,  17,  18,  19,  20,  21,  22,  23, 162, 162, 162, 162,  // 0x1_0 to 0x1_F
+  24,  25, 26,  27,  28,  29,  30,  31,  32,  33,  34,  35, 162, 162, 162, 162,  // 0x2_0 to 0x2_F
+  36,  37, 38,  39,  40,  41,  42,  43,  44,  45,  46,  47, 162, 162, 162, 162,  // 0x3_0 to 0x3_F
+  48,  49, 50,  51,  52,  53,  54,  55,  56,  57,  58,  59, 162, 162, 162, 162,  // 0x4_0 to 0x4_F
+  60,  61, 62,  63,  64,  65,  66,  67,  68,  69,  70,  71, 162, 162, 162, 162,  // 0x5_0 to 0x5_F
+  72,  73, 74,  75,  76,  77,  78,  79,  80,  81,  82,  83, 162, 162, 162, 162,  // 0x6_0 to 0x6_F
+  84,  85, 86,  87,  88,  89,  90,  91,  92,  93,  94,  95, 162, 162, 162, 162,  // 0x7_0 to 0x7_F
+  96,  97, 98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 162, 162, 162, 162,  // 0x8_0 to 0x8_F
+ 108, 109,110, 111,112, 113,114, 115,116, 117,118, 119, 162, 162, 162, 162,      // 0x9_0 to 0x9_F
+ 120,121,122,123,124,125,126,127,128,129,130,131, 162, 162, 162, 162,            // 0xA_0 to 0xA_F
+ 132,133,134,135,136,137,138,139,140,141,142,143, 162, 162, 162, 162,            // 0xB_0 to 0xB_F
+ 144,145,146,147,148,149,150,151,152,153,154,155, 162, 162, 162, 162,            // 0xC_0 to 0xC_F
+ 156,157,158,159,160,161,162,162,162,162,162,162, 162, 162, 162, 162,            // 0xD_0 to 0xD_F
+ 162,162,162,162,162,162,162,162,162,162,162,162, 162, 162, 162, 162,            // 0xE_0 to 0xE_F
+ 162,162,162,162,162,162,162,162,162,162,162,162, 162, 162, 162, 162             // 0xF_0 to 0xF_F
+};
+ 
 always_ff @(posedge clk) begin
 	if (rst) begin
 		third_8_all_0s    <= 0;
@@ -264,54 +361,22 @@ always_ff @(posedge clk) begin
 	end
 end
 
-// On each positive clock edge, update the JPEG bitstream register
 always_ff @(posedge clk) begin
 	if (rst) begin
 		// Clear the final bitstream register on reset
-		JPEG_bs_5 <= 0; 
+		JPEG_bs_5 <= 32'b0;
 	end
-	else if (enable_module) begin 
-		// Conditionally assign each bit of JPEG_bs_5:
-		// If rollover_6 is high and orc_7 > index, use rollover (ro) buffer value
-		// Otherwise, use the normal JPEG bitstream value from JPEG_bs_4
-		// This mechanism ensures the correct bits are selected in rollover scenarios
+	else if (enable_module) begin
+		// Use loop to update bits 31 to 1 conditionally
+		for (int i = 31; i > 0; i--) begin
+			JPEG_bs_5[i] <= (rollover_6 && orc_7 > (31 - i)) ? JPEG_ro_bs_4[i] : JPEG_bs_4[i];
+		end
 
-		JPEG_bs_5[31] <= (rollover_6 && orc_7 > 0)  ? JPEG_ro_bs_4[31] : JPEG_bs_4[31];
-		JPEG_bs_5[30] <= (rollover_6 && orc_7 > 1)  ? JPEG_ro_bs_4[30] : JPEG_bs_4[30];
-		JPEG_bs_5[29] <= (rollover_6 && orc_7 > 2)  ? JPEG_ro_bs_4[29] : JPEG_bs_4[29];
-		JPEG_bs_5[28] <= (rollover_6 && orc_7 > 3)  ? JPEG_ro_bs_4[28] : JPEG_bs_4[28];
-		JPEG_bs_5[27] <= (rollover_6 && orc_7 > 4)  ? JPEG_ro_bs_4[27] : JPEG_bs_4[27];
-		JPEG_bs_5[26] <= (rollover_6 && orc_7 > 5)  ? JPEG_ro_bs_4[26] : JPEG_bs_4[26];
-		JPEG_bs_5[25] <= (rollover_6 && orc_7 > 6)  ? JPEG_ro_bs_4[25] : JPEG_bs_4[25];
-		JPEG_bs_5[24] <= (rollover_6 && orc_7 > 7)  ? JPEG_ro_bs_4[24] : JPEG_bs_4[24];
-		JPEG_bs_5[23] <= (rollover_6 && orc_7 > 8)  ? JPEG_ro_bs_4[23] : JPEG_bs_4[23];
-		JPEG_bs_5[22] <= (rollover_6 && orc_7 > 9)  ? JPEG_ro_bs_4[22] : JPEG_bs_4[22];
-		JPEG_bs_5[21] <= (rollover_6 && orc_7 > 10) ? JPEG_ro_bs_4[21] : JPEG_bs_4[21];
-		JPEG_bs_5[20] <= (rollover_6 && orc_7 > 11) ? JPEG_ro_bs_4[20] : JPEG_bs_4[20];
-		JPEG_bs_5[19] <= (rollover_6 && orc_7 > 12) ? JPEG_ro_bs_4[19] : JPEG_bs_4[19];
-		JPEG_bs_5[18] <= (rollover_6 && orc_7 > 13) ? JPEG_ro_bs_4[18] : JPEG_bs_4[18];
-		JPEG_bs_5[17] <= (rollover_6 && orc_7 > 14) ? JPEG_ro_bs_4[17] : JPEG_bs_4[17];
-		JPEG_bs_5[16] <= (rollover_6 && orc_7 > 15) ? JPEG_ro_bs_4[16] : JPEG_bs_4[16];
-		JPEG_bs_5[15] <= (rollover_6 && orc_7 > 16) ? JPEG_ro_bs_4[15] : JPEG_bs_4[15];
-		JPEG_bs_5[14] <= (rollover_6 && orc_7 > 17) ? JPEG_ro_bs_4[14] : JPEG_bs_4[14];
-		JPEG_bs_5[13] <= (rollover_6 && orc_7 > 18) ? JPEG_ro_bs_4[13] : JPEG_bs_4[13];
-		JPEG_bs_5[12] <= (rollover_6 && orc_7 > 19) ? JPEG_ro_bs_4[12] : JPEG_bs_4[12];
-		JPEG_bs_5[11] <= (rollover_6 && orc_7 > 20) ? JPEG_ro_bs_4[11] : JPEG_bs_4[11];
-		JPEG_bs_5[10] <= (rollover_6 && orc_7 > 21) ? JPEG_ro_bs_4[10] : JPEG_bs_4[10];
-		JPEG_bs_5[9]  <= (rollover_6 && orc_7 > 22) ? JPEG_ro_bs_4[9]  : JPEG_bs_4[9];
-		JPEG_bs_5[8]  <= (rollover_6 && orc_7 > 23) ? JPEG_ro_bs_4[8]  : JPEG_bs_4[8];
-		JPEG_bs_5[7]  <= (rollover_6 && orc_7 > 24) ? JPEG_ro_bs_4[7]  : JPEG_bs_4[7];
-		JPEG_bs_5[6]  <= (rollover_6 && orc_7 > 25) ? JPEG_ro_bs_4[6]  : JPEG_bs_4[6];
-		JPEG_bs_5[5]  <= (rollover_6 && orc_7 > 26) ? JPEG_ro_bs_4[5]  : JPEG_bs_4[5];
-		JPEG_bs_5[4]  <= (rollover_6 && orc_7 > 27) ? JPEG_ro_bs_4[4]  : JPEG_bs_4[4];
-		JPEG_bs_5[3]  <= (rollover_6 && orc_7 > 28) ? JPEG_ro_bs_4[3]  : JPEG_bs_4[3];
-		JPEG_bs_5[2]  <= (rollover_6 && orc_7 > 29) ? JPEG_ro_bs_4[2]  : JPEG_bs_4[2];
-		JPEG_bs_5[1]  <= (rollover_6 && orc_7 > 30) ? JPEG_ro_bs_4[1]  : JPEG_bs_4[1];
-
-		// Bit 0 is always taken from JPEG_bs_4 unconditionally
-		JPEG_bs_5[0]  <= JPEG_bs_4[0];
+		// Bit 0 is always taken from JPEG_bs_4
+		JPEG_bs_5[0] <= JPEG_bs_4[0];
 	end
 end
+
 
 // Stage 1: Final 32-bit bitstream preparation
 always_ff @(posedge clk) begin
@@ -407,67 +472,48 @@ always_ff @(posedge clk) begin
 		Y11_JPEG_bits_1 <= Y11_JPEG_bits;
 	end
 end
-
-// Construct the final JPEG bitstream for Y12 block
 always_ff @(posedge clk) begin
 	if (rst) begin
-		Y12_JPEG_bits <= 0;   // Clear Y12 output bitstream
-		Y12_edge <= 0;        // Clear bitstream width info
+		Y12_JPEG_bits <= 26'b0;  // Clear output bitstream
+		Y12_edge      <= 0;      // Clear width tracker
 	end
-	else if (enable_module) begin 
-		// Conditional bit selection: if shift is large, use LSBs; else take from Huffman
-		Y12_JPEG_bits[25] <= (Y12_Huff_shift_1 >= 16) ? Y12_JPEG_LSBs_4[25] : Y12_Huff_2[15];
-		Y12_JPEG_bits[24] <= (Y12_Huff_shift_1 >= 15) ? Y12_JPEG_LSBs_4[24] : Y12_Huff_2[14];
-		Y12_JPEG_bits[23] <= (Y12_Huff_shift_1 >= 14) ? Y12_JPEG_LSBs_4[23] : Y12_Huff_2[13];
-		Y12_JPEG_bits[22] <= (Y12_Huff_shift_1 >= 13) ? Y12_JPEG_LSBs_4[22] : Y12_Huff_2[12];
-		Y12_JPEG_bits[21] <= (Y12_Huff_shift_1 >= 12) ? Y12_JPEG_LSBs_4[21] : Y12_Huff_2[11];
-		Y12_JPEG_bits[20] <= (Y12_Huff_shift_1 >= 11) ? Y12_JPEG_LSBs_4[20] : Y12_Huff_2[10];
-		Y12_JPEG_bits[19] <= (Y12_Huff_shift_1 >= 10) ? Y12_JPEG_LSBs_4[19] : Y12_Huff_2[9];
-		Y12_JPEG_bits[18] <= (Y12_Huff_shift_1 >= 9) ? Y12_JPEG_LSBs_4[18] : Y12_Huff_2[8];
-		Y12_JPEG_bits[17] <= (Y12_Huff_shift_1 >= 8) ? Y12_JPEG_LSBs_4[17] : Y12_Huff_2[7];
-		Y12_JPEG_bits[16] <= (Y12_Huff_shift_1 >= 7) ? Y12_JPEG_LSBs_4[16] : Y12_Huff_2[6];
-		Y12_JPEG_bits[15] <= (Y12_Huff_shift_1 >= 6) ? Y12_JPEG_LSBs_4[15] : Y12_Huff_2[5];
-		Y12_JPEG_bits[14] <= (Y12_Huff_shift_1 >= 5) ? Y12_JPEG_LSBs_4[14] : Y12_Huff_2[4];
-		Y12_JPEG_bits[13] <= (Y12_Huff_shift_1 >= 4) ? Y12_JPEG_LSBs_4[13] : Y12_Huff_2[3];
-		Y12_JPEG_bits[12] <= (Y12_Huff_shift_1 >= 3) ? Y12_JPEG_LSBs_4[12] : Y12_Huff_2[2];
-		Y12_JPEG_bits[11] <= (Y12_Huff_shift_1 >= 2) ? Y12_JPEG_LSBs_4[11] : Y12_Huff_2[1];
-		Y12_JPEG_bits[10] <= (Y12_Huff_shift_1 >= 1) ? Y12_JPEG_LSBs_4[10] : Y12_Huff_2[0];
+	else if (enable_module) begin
+		// Conditionally assign bits [25:10] using loop
+		for (int i = 25; i >= 10; i--) begin
+			Y12_JPEG_bits[i] <= (Y12_Huff_shift_1 >= (i - 9)) 
+			                  ? Y12_JPEG_LSBs_4[i] 
+			                  : Y12_Huff_2[i - 10];
+		end
 
-		// Lower 10 bits always come from the LSBs (no Huffman code here)
+		// Lower 10 bits always come from the LSBs
 		Y12_JPEG_bits[9:0] <= Y12_JPEG_LSBs_4[9:0];
 
-		// Track total width of the output (used for shifting in later stages)
+		// Output width tracking (important for downstream bit alignment)
 		Y12_edge <= old_orc_2 + 26;
 	end
 end
 
-// Construct the final JPEG bitstream for Y11 block
 always_ff @(posedge clk) begin
 	if (rst) begin
-		Y11_JPEG_bits <= 0;  // Clear Y11 JPEG output stream
+		Y11_JPEG_bits <= 26'b0;  // Clear output stream
 	end
-	else if (enable_7) begin 
-		// Similar bit selection logic as above for Y11
-		Y11_JPEG_bits[25] <= (Y11_Huff_shift_1 >= 11) ? Y11_JPEG_LSBs_3[21] : Y11_Huff_2[10];
-		Y11_JPEG_bits[24] <= (Y11_Huff_shift_1 >= 10) ? Y11_JPEG_LSBs_3[20] : Y11_Huff_2[9];
-		Y11_JPEG_bits[23] <= (Y11_Huff_shift_1 >= 9) ? Y11_JPEG_LSBs_3[19] : Y11_Huff_2[8];
-		Y11_JPEG_bits[22] <= (Y11_Huff_shift_1 >= 8) ? Y11_JPEG_LSBs_3[18] : Y11_Huff_2[7];
-		Y11_JPEG_bits[21] <= (Y11_Huff_shift_1 >= 7) ? Y11_JPEG_LSBs_3[17] : Y11_Huff_2[6];
-		Y11_JPEG_bits[20] <= (Y11_Huff_shift_1 >= 6) ? Y11_JPEG_LSBs_3[16] : Y11_Huff_2[5];
-		Y11_JPEG_bits[19] <= (Y11_Huff_shift_1 >= 5) ? Y11_JPEG_LSBs_3[15] : Y11_Huff_2[4];
-		Y11_JPEG_bits[18] <= (Y11_Huff_shift_1 >= 4) ? Y11_JPEG_LSBs_3[14] : Y11_Huff_2[3];
-		Y11_JPEG_bits[17] <= (Y11_Huff_shift_1 >= 3) ? Y11_JPEG_LSBs_3[13] : Y11_Huff_2[2];
-		Y11_JPEG_bits[16] <= (Y11_Huff_shift_1 >= 2) ? Y11_JPEG_LSBs_3[12] : Y11_Huff_2[1];
-		Y11_JPEG_bits[15] <= (Y11_Huff_shift_1 >= 1) ? Y11_JPEG_LSBs_3[11] : Y11_Huff_2[0];
+	else if (enable_7) begin
+		// Bits [25:15] come from either Huffman or LSBs based on shift
+		for (int i = 25; i >= 15; i--) begin
+			Y11_JPEG_bits[i] <= (Y11_Huff_shift_1 >= (i - 14))
+			                  ? Y11_JPEG_LSBs_3[i - 4]
+			                  : Y11_Huff_2[i - 15];
+		end
 
-		// Lower 11 bits: always from LSBs
+		// Bits [14:4] always from LSBs
 		Y11_JPEG_bits[14:4] <= Y11_JPEG_LSBs_3[10:0];
 	end
 	else if (enable_latch_8) begin
-		// On latch signal, copy Y12 bits into Y11 register
+		// Latch Y12 data into Y11 register
 		Y11_JPEG_bits <= Y12_JPEG_bits;
 	end
 end
+
 
 // Stage 1: Generate final output count and align JPEG LSBs for Y12 block
 always_ff @(posedge clk) begin
@@ -1408,535 +1454,6 @@ always_ff @(posedge clk) begin
     end
 end
 
-
-always @(posedge clk)
-begin
-	Y_DC_code_length[0] <= 2;
-Y_DC_code_length[1] <= 2;
-Y_DC_code_length[2] <= 2;
-Y_DC_code_length[3] <= 3;
-Y_DC_code_length[4] <= 4;
-Y_DC_code_length[5] <= 5;
-Y_DC_code_length[6] <= 6;
-Y_DC_code_length[7] <= 7;
-Y_DC_code_length[8] <= 8;
-Y_DC_code_length[9] <= 9;
-Y_DC_code_length[10] <= 10;
-Y_DC_code_length[11] <= 11;
-Y_DC[0] <= 11'b00000000000;
-Y_DC[1] <= 11'b01000000000;
-Y_DC[2] <= 11'b10000000000;
-Y_DC[3] <= 11'b11000000000;
-Y_DC[4] <= 11'b11100000000;
-Y_DC[5] <= 11'b11110000000;
-Y_DC[6] <= 11'b11111000000;
-Y_DC[7] <= 11'b11111100000;
-Y_DC[8] <= 11'b11111110000;
-Y_DC[9] <= 11'b11111111000;
-Y_DC[10] <= 11'b11111111100;
-Y_DC[11] <= 11'b11111111110;
-Y_AC_code_length[0] <= 2;
-Y_AC_code_length[1] <= 2;
-Y_AC_code_length[2] <= 3;
-Y_AC_code_length[3] <= 4;
-Y_AC_code_length[4] <= 4;
-Y_AC_code_length[5] <= 4;
-Y_AC_code_length[6] <= 5;
-Y_AC_code_length[7] <= 5;
-Y_AC_code_length[8] <= 5;
-Y_AC_code_length[9] <= 6;
-Y_AC_code_length[10] <= 6;
-Y_AC_code_length[11] <= 7;
-Y_AC_code_length[12] <= 7;
-Y_AC_code_length[13] <= 7;
-Y_AC_code_length[14] <= 7;
-Y_AC_code_length[15] <= 8;
-Y_AC_code_length[16] <= 8;
-Y_AC_code_length[17] <= 8;
-Y_AC_code_length[18] <= 9;
-Y_AC_code_length[19] <= 9;
-Y_AC_code_length[20] <= 9;
-Y_AC_code_length[21] <= 9;
-Y_AC_code_length[22] <= 9;
-Y_AC_code_length[23] <= 10;
-Y_AC_code_length[24] <= 10;
-Y_AC_code_length[25] <= 10;
-Y_AC_code_length[26] <= 10;
-Y_AC_code_length[27] <= 10;
-Y_AC_code_length[28] <= 11;
-Y_AC_code_length[29] <= 11;
-Y_AC_code_length[30] <= 11;
-Y_AC_code_length[31] <= 11;
-Y_AC_code_length[32] <= 12;
-Y_AC_code_length[33] <= 12;
-Y_AC_code_length[34] <= 12;
-Y_AC_code_length[35] <= 12;
-Y_AC_code_length[36] <= 15;
-Y_AC_code_length[37] <= 16;
-Y_AC_code_length[38] <= 16;
-Y_AC_code_length[39] <= 16;
-Y_AC_code_length[40] <= 16;
-Y_AC_code_length[41] <= 16;
-Y_AC_code_length[42] <= 16;
-Y_AC_code_length[43] <= 16;
-Y_AC_code_length[44] <= 16;
-Y_AC_code_length[45] <= 16;
-Y_AC_code_length[46] <= 16;
-Y_AC_code_length[47] <= 16;
-Y_AC_code_length[48] <= 16;
-Y_AC_code_length[49] <= 16;
-Y_AC_code_length[50] <= 16;
-Y_AC_code_length[51] <= 16;
-Y_AC_code_length[52] <= 16;
-Y_AC_code_length[53] <= 16;
-Y_AC_code_length[54] <= 16;
-Y_AC_code_length[55] <= 16;
-Y_AC_code_length[56] <= 16;
-Y_AC_code_length[57] <= 16;
-Y_AC_code_length[58] <= 16;
-Y_AC_code_length[59] <= 16;
-Y_AC_code_length[60] <= 16;
-Y_AC_code_length[61] <= 16;
-Y_AC_code_length[62] <= 16;
-Y_AC_code_length[63] <= 16;
-Y_AC_code_length[64] <= 16;
-Y_AC_code_length[65] <= 16;
-Y_AC_code_length[66] <= 16;
-Y_AC_code_length[67] <= 16;
-Y_AC_code_length[68] <= 16;
-Y_AC_code_length[69] <= 16;
-Y_AC_code_length[70] <= 16;
-Y_AC_code_length[71] <= 16;
-Y_AC_code_length[72] <= 16;
-Y_AC_code_length[73] <= 16;
-Y_AC_code_length[74] <= 16;
-Y_AC_code_length[75] <= 16;
-Y_AC_code_length[76] <= 16;
-Y_AC_code_length[77] <= 16;
-Y_AC_code_length[78] <= 16;
-Y_AC_code_length[79] <= 16;
-Y_AC_code_length[80] <= 16;
-Y_AC_code_length[81] <= 16;
-Y_AC_code_length[82] <= 16;
-Y_AC_code_length[83] <= 16;
-Y_AC_code_length[84] <= 16;
-Y_AC_code_length[85] <= 16;
-Y_AC_code_length[86] <= 16;
-Y_AC_code_length[87] <= 16;
-Y_AC_code_length[88] <= 16;
-Y_AC_code_length[89] <= 16;
-Y_AC_code_length[90] <= 16;
-Y_AC_code_length[91] <= 16;
-Y_AC_code_length[92] <= 16;
-Y_AC_code_length[93] <= 16;
-Y_AC_code_length[94] <= 16;
-Y_AC_code_length[95] <= 16;
-Y_AC_code_length[96] <= 16;
-Y_AC_code_length[97] <= 16;
-Y_AC_code_length[98] <= 16;
-Y_AC_code_length[99] <= 16;
-Y_AC_code_length[100] <= 16;
-Y_AC_code_length[101] <= 16;
-Y_AC_code_length[102] <= 16;
-Y_AC_code_length[103] <= 16;
-Y_AC_code_length[104] <= 16;
-Y_AC_code_length[105] <= 16;
-Y_AC_code_length[106] <= 16;
-Y_AC_code_length[107] <= 16;
-Y_AC_code_length[108] <= 16;
-Y_AC_code_length[109] <= 16;
-Y_AC_code_length[110] <= 16;
-Y_AC_code_length[111] <= 16;
-Y_AC_code_length[112] <= 16;
-Y_AC_code_length[113] <= 16;
-Y_AC_code_length[114] <= 16;
-Y_AC_code_length[115] <= 16;
-Y_AC_code_length[116] <= 16;
-Y_AC_code_length[117] <= 16;
-Y_AC_code_length[118] <= 16;
-Y_AC_code_length[119] <= 16;
-Y_AC_code_length[120] <= 16;
-Y_AC_code_length[121] <= 16;
-Y_AC_code_length[122] <= 16;
-Y_AC_code_length[123] <= 16;
-Y_AC_code_length[124] <= 16;
-Y_AC_code_length[125] <= 16;
-Y_AC_code_length[126] <= 16;
-Y_AC_code_length[127] <= 16;
-Y_AC_code_length[128] <= 16;
-Y_AC_code_length[129] <= 16;
-Y_AC_code_length[130] <= 16;
-Y_AC_code_length[131] <= 16;
-Y_AC_code_length[132] <= 16;
-Y_AC_code_length[133] <= 16;
-Y_AC_code_length[134] <= 16;
-Y_AC_code_length[135] <= 16;
-Y_AC_code_length[136] <= 16;
-Y_AC_code_length[137] <= 16;
-Y_AC_code_length[138] <= 16;
-Y_AC_code_length[139] <= 16;
-Y_AC_code_length[140] <= 16;
-Y_AC_code_length[141] <= 16;
-Y_AC_code_length[142] <= 16;
-Y_AC_code_length[143] <= 16;
-Y_AC_code_length[144] <= 16;
-Y_AC_code_length[145] <= 16;
-Y_AC_code_length[146] <= 16;
-Y_AC_code_length[147] <= 16;
-Y_AC_code_length[148] <= 16;
-Y_AC_code_length[149] <= 16;
-Y_AC_code_length[150] <= 16;
-Y_AC_code_length[151] <= 16;
-Y_AC_code_length[152] <= 16;
-Y_AC_code_length[153] <= 16;
-Y_AC_code_length[154] <= 16;
-Y_AC_code_length[155] <= 16;
-Y_AC_code_length[156] <= 16;
-Y_AC_code_length[157] <= 16;
-Y_AC_code_length[158] <= 16;
-Y_AC_code_length[159] <= 16;
-Y_AC_code_length[160] <= 16;
-Y_AC_code_length[161] <= 16;
-
-Y_AC[0] <= 16'b0000000000000000;
-Y_AC[1] <= 16'b0100000000000000;
-Y_AC[2] <= 16'b1000000000000000;
-Y_AC[3] <= 16'b1010000000000000;
-Y_AC[4] <= 16'b1011000000000000;
-Y_AC[5] <= 16'b1100000000000000;
-Y_AC[6] <= 16'b1101000000000000;
-Y_AC[7] <= 16'b1101100000000000;
-Y_AC[8] <= 16'b1110000000000000;
-Y_AC[9] <= 16'b1110100000000000;
-Y_AC[10] <= 16'b1110110000000000;
-Y_AC[11] <= 16'b1111000000000000;
-Y_AC[12] <= 16'b1111001000000000;
-Y_AC[13] <= 16'b1111010000000000;
-Y_AC[14] <= 16'b1111011000000000;
-Y_AC[15] <= 16'b1111100000000000;
-Y_AC[16] <= 16'b1111100100000000;
-Y_AC[17] <= 16'b1111101000000000;
-Y_AC[18] <= 16'b1111101100000000;
-Y_AC[19] <= 16'b1111101110000000;
-Y_AC[20] <= 16'b1111110000000000;
-Y_AC[21] <= 16'b1111110010000000;
-Y_AC[22] <= 16'b1111110100000000;
-Y_AC[23] <= 16'b1111110110000000;
-Y_AC[24] <= 16'b1111110111000000;
-Y_AC[25] <= 16'b1111111000000000;
-Y_AC[26] <= 16'b1111111001000000;
-Y_AC[27] <= 16'b1111111010000000;
-Y_AC[28] <= 16'b1111111011000000;
-Y_AC[29] <= 16'b1111111011100000;
-Y_AC[30] <= 16'b1111111100000000;
-Y_AC[31] <= 16'b1111111100100000;
-Y_AC[32] <= 16'b1111111101000000;
-Y_AC[33] <= 16'b1111111101010000;
-Y_AC[34] <= 16'b1111111101100000;
-Y_AC[35] <= 16'b1111111101110000;
-Y_AC[36] <= 16'b1111111110000000;
-Y_AC[37] <= 16'b1111111110000010;
-Y_AC[38] <= 16'b1111111110000011;
-Y_AC[39] <= 16'b1111111110000100;
-Y_AC[40] <= 16'b1111111110000101;
-Y_AC[41] <= 16'b1111111110000110;
-Y_AC[42] <= 16'b1111111110000111;
-Y_AC[43] <= 16'b1111111110001000;
-Y_AC[44] <= 16'b1111111110001001;
-Y_AC[45] <= 16'b1111111110001010;
-Y_AC[46] <= 16'b1111111110001011;
-Y_AC[47] <= 16'b1111111110001100;
-Y_AC[48] <= 16'b1111111110001101;
-Y_AC[49] <= 16'b1111111110001110;
-Y_AC[50] <= 16'b1111111110001111;
-Y_AC[51] <= 16'b1111111110010000;
-Y_AC[52] <= 16'b1111111110010001;
-Y_AC[53] <= 16'b1111111110010010;
-Y_AC[54] <= 16'b1111111110010011;
-Y_AC[55] <= 16'b1111111110010100;
-Y_AC[56] <= 16'b1111111110010101;
-Y_AC[57] <= 16'b1111111110010110;
-Y_AC[58] <= 16'b1111111110010111;
-Y_AC[59] <= 16'b1111111110011000;
-Y_AC[60] <= 16'b1111111110011001;
-Y_AC[61] <= 16'b1111111110011010;
-Y_AC[62] <= 16'b1111111110011011;
-Y_AC[63] <= 16'b1111111110011100;
-Y_AC[64] <= 16'b1111111110011101;
-Y_AC[65] <= 16'b1111111110011110;
-Y_AC[66] <= 16'b1111111110011111;
-Y_AC[67] <= 16'b1111111110100000;
-Y_AC[68] <= 16'b1111111110100001;
-Y_AC[69] <= 16'b1111111110100010;
-Y_AC[70] <= 16'b1111111110100011;
-Y_AC[71] <= 16'b1111111110100100;
-Y_AC[72] <= 16'b1111111110100101;
-Y_AC[73] <= 16'b1111111110100110;
-Y_AC[74] <= 16'b1111111110100111;
-Y_AC[75] <= 16'b1111111110101000;
-Y_AC[76] <= 16'b1111111110101001;
-Y_AC[77] <= 16'b1111111110101010;
-Y_AC[78] <= 16'b1111111110101011;
-Y_AC[79] <= 16'b1111111110101100;
-Y_AC[80] <= 16'b1111111110101101;
-Y_AC[81] <= 16'b1111111110101110;
-Y_AC[82] <= 16'b1111111110101111;
-Y_AC[83] <= 16'b1111111110110000;
-Y_AC[84] <= 16'b1111111110110001;
-Y_AC[85] <= 16'b1111111110110010;
-Y_AC[86] <= 16'b1111111110110011;
-Y_AC[87] <= 16'b1111111110110100;
-Y_AC[88] <= 16'b1111111110110101;
-Y_AC[89] <= 16'b1111111110110110;
-Y_AC[90] <= 16'b1111111110110111;
-Y_AC[91] <= 16'b1111111110111000;
-Y_AC[92] <= 16'b1111111110111001;
-Y_AC[93] <= 16'b1111111110111010;
-Y_AC[94] <= 16'b1111111110111011;
-Y_AC[95] <= 16'b1111111110111100;
-Y_AC[96] <= 16'b1111111110111101;
-Y_AC[97] <= 16'b1111111110111110;
-Y_AC[98] <= 16'b1111111110111111;
-Y_AC[99] <= 16'b1111111111000000;
-Y_AC[100] <= 16'b1111111111000001;
-Y_AC[101] <= 16'b1111111111000010;
-Y_AC[102] <= 16'b1111111111000011;
-Y_AC[103] <= 16'b1111111111000100;
-Y_AC[104] <= 16'b1111111111000101;
-Y_AC[105] <= 16'b1111111111000110;
-Y_AC[106] <= 16'b1111111111000111;
-Y_AC[107] <= 16'b1111111111001000;
-Y_AC[108] <= 16'b1111111111001001;
-Y_AC[109] <= 16'b1111111111001010;
-Y_AC[110] <= 16'b1111111111001011;
-Y_AC[111] <= 16'b1111111111001100;
-Y_AC[112] <= 16'b1111111111001101;
-Y_AC[113] <= 16'b1111111111001110;
-Y_AC[114] <= 16'b1111111111001111;
-Y_AC[115] <= 16'b1111111111010000;
-Y_AC[116] <= 16'b1111111111010001;
-Y_AC[117] <= 16'b1111111111010010;
-Y_AC[118] <= 16'b1111111111010011;
-Y_AC[119] <= 16'b1111111111010100;
-Y_AC[120] <= 16'b1111111111010101;
-Y_AC[121] <= 16'b1111111111010110;
-Y_AC[122] <= 16'b1111111111010111;
-Y_AC[123] <= 16'b1111111111011000;
-Y_AC[124] <= 16'b1111111111011001;
-Y_AC[125] <= 16'b1111111111011010;
-Y_AC[126] <= 16'b1111111111011011;
-Y_AC[127] <= 16'b1111111111011100;
-Y_AC[128] <= 16'b1111111111011101;
-Y_AC[129] <= 16'b1111111111011110;
-Y_AC[130] <= 16'b1111111111011111;
-Y_AC[131] <= 16'b1111111111100000;
-Y_AC[132] <= 16'b1111111111100001;
-Y_AC[133] <= 16'b1111111111100010;
-Y_AC[134] <= 16'b1111111111100011;
-Y_AC[135] <= 16'b1111111111100100;
-Y_AC[136] <= 16'b1111111111100101;
-Y_AC[137] <= 16'b1111111111100110;
-Y_AC[138] <= 16'b1111111111100111;
-Y_AC[139] <= 16'b1111111111101000;
-Y_AC[140] <= 16'b1111111111101001;
-Y_AC[141] <= 16'b1111111111101010;
-Y_AC[142] <= 16'b1111111111101011;
-Y_AC[143] <= 16'b1111111111101100;
-Y_AC[144] <= 16'b1111111111101101;
-Y_AC[145] <= 16'b1111111111101110;
-Y_AC[146] <= 16'b1111111111101111;
-Y_AC[147] <= 16'b1111111111110000;
-Y_AC[148] <= 16'b1111111111110001;
-Y_AC[149] <= 16'b1111111111110010;
-Y_AC[150] <= 16'b1111111111110011;
-Y_AC[151] <= 16'b1111111111110100;
-Y_AC[152] <= 16'b1111111111110101;
-Y_AC[153] <= 16'b1111111111110110;
-Y_AC[154] <= 16'b1111111111110111;
-Y_AC[155] <= 16'b1111111111111000;
-Y_AC[156] <= 16'b1111111111111001;
-Y_AC[157] <= 16'b1111111111111010;
-Y_AC[158] <= 16'b1111111111111011;
-Y_AC[159] <= 16'b1111111111111100;
-Y_AC[160] <= 16'b1111111111111101;
-Y_AC[161] <= 16'b1111111111111110;
-Y_AC_run_code[1] <= 0;
-Y_AC_run_code[2] <= 1;
-Y_AC_run_code[3] <= 2;
-Y_AC_run_code[0] <= 3;
-Y_AC_run_code[4] <= 4;
-Y_AC_run_code[17] <= 5;
-Y_AC_run_code[5] <= 6;
-Y_AC_run_code[18] <= 7;
-Y_AC_run_code[33] <= 8;
-Y_AC_run_code[49] <= 9;
-Y_AC_run_code[65] <= 10;
-Y_AC_run_code[6] <= 11;
-Y_AC_run_code[19] <= 12;
-Y_AC_run_code[81] <= 13;
-Y_AC_run_code[97] <= 14;
-Y_AC_run_code[7] <= 15;
-Y_AC_run_code[34] <= 16;
-Y_AC_run_code[113] <= 17;
-Y_AC_run_code[20] <= 18;
-Y_AC_run_code[50] <= 19;
-Y_AC_run_code[129] <= 20;
-Y_AC_run_code[145] <= 21;
-Y_AC_run_code[161] <= 22;
-Y_AC_run_code[8] <= 23;
-Y_AC_run_code[35] <= 24;
-Y_AC_run_code[66] <= 25;
-Y_AC_run_code[177] <= 26;
-Y_AC_run_code[193] <= 27;
-Y_AC_run_code[21] <= 28;
-Y_AC_run_code[82] <= 29;
-Y_AC_run_code[209] <= 30;
-Y_AC_run_code[240] <= 31;
-Y_AC_run_code[36] <= 32;
-Y_AC_run_code[51] <= 33;
-Y_AC_run_code[98] <= 34;
-Y_AC_run_code[114] <= 35;
-Y_AC_run_code[130] <= 36;
-Y_AC_run_code[9] <= 37;
-Y_AC_run_code[10] <= 38;
-Y_AC_run_code[22] <= 39;
-Y_AC_run_code[23] <= 40;
-Y_AC_run_code[24] <= 41;
-Y_AC_run_code[25] <= 42;
-Y_AC_run_code[26] <= 43;
-Y_AC_run_code[37] <= 44;
-Y_AC_run_code[38] <= 45;
-Y_AC_run_code[39] <= 46;
-Y_AC_run_code[40] <= 47;
-Y_AC_run_code[41] <= 48;
-Y_AC_run_code[42] <= 49;
-Y_AC_run_code[52] <= 50;
-Y_AC_run_code[53] <= 51;
-Y_AC_run_code[54] <= 52;
-Y_AC_run_code[55] <= 53;
-Y_AC_run_code[56] <= 54;
-Y_AC_run_code[57] <= 55;
-Y_AC_run_code[58] <= 56;
-Y_AC_run_code[67] <= 57;
-Y_AC_run_code[68] <= 58;
-Y_AC_run_code[69] <= 59;
-Y_AC_run_code[70] <= 60;
-Y_AC_run_code[71] <= 61;
-Y_AC_run_code[72] <= 62;
-Y_AC_run_code[73] <= 63;
-Y_AC_run_code[74] <= 64;
-Y_AC_run_code[83] <= 65;
-Y_AC_run_code[84] <= 66;
-Y_AC_run_code[85] <= 67;
-Y_AC_run_code[86] <= 68;
-Y_AC_run_code[87] <= 69;
-Y_AC_run_code[88] <= 70;
-Y_AC_run_code[89] <= 71;
-Y_AC_run_code[90] <= 72;
-Y_AC_run_code[99] <= 73;
-Y_AC_run_code[100] <= 74;
-Y_AC_run_code[101] <= 75;
-Y_AC_run_code[102] <= 76;
-Y_AC_run_code[103] <= 77;
-Y_AC_run_code[104] <= 78;
-Y_AC_run_code[105] <= 79;
-Y_AC_run_code[106] <= 80;
-Y_AC_run_code[115] <= 81;
-Y_AC_run_code[116] <= 82;
-Y_AC_run_code[117] <= 83;
-Y_AC_run_code[118] <= 84;
-Y_AC_run_code[119] <= 85;
-Y_AC_run_code[120] <= 86;
-Y_AC_run_code[121] <= 87;
-Y_AC_run_code[122] <= 88;
-Y_AC_run_code[131] <= 89;
-Y_AC_run_code[132] <= 90;
-Y_AC_run_code[133] <= 91;
-Y_AC_run_code[134] <= 92;
-Y_AC_run_code[135] <= 93;
-Y_AC_run_code[136] <= 94;
-Y_AC_run_code[137] <= 95;
-Y_AC_run_code[138] <= 96;
-Y_AC_run_code[146] <= 97;
-Y_AC_run_code[147] <= 98;
-Y_AC_run_code[148] <= 99;
-Y_AC_run_code[149] <= 100;
-Y_AC_run_code[150] <= 101;
-Y_AC_run_code[151] <= 102;
-Y_AC_run_code[152] <= 103;
-Y_AC_run_code[153] <= 104;
-Y_AC_run_code[154] <= 105;
-Y_AC_run_code[162] <= 106;
-Y_AC_run_code[163] <= 107;
-Y_AC_run_code[164] <= 108;
-Y_AC_run_code[165] <= 109;
-Y_AC_run_code[166] <= 110;
-Y_AC_run_code[167] <= 111;
-Y_AC_run_code[168] <= 112;
-Y_AC_run_code[169] <= 113;
-Y_AC_run_code[170] <= 114;
-Y_AC_run_code[178] <= 115;
-Y_AC_run_code[179] <= 116;
-Y_AC_run_code[180] <= 117;
-Y_AC_run_code[181] <= 118;
-Y_AC_run_code[182] <= 119;
-Y_AC_run_code[183] <= 120;
-Y_AC_run_code[184] <= 121;
-Y_AC_run_code[185] <= 122;
-Y_AC_run_code[186] <= 123;
-Y_AC_run_code[194] <= 124;
-Y_AC_run_code[195] <= 125;
-Y_AC_run_code[196] <= 126;
-Y_AC_run_code[197] <= 127;
-Y_AC_run_code[198] <= 128;
-Y_AC_run_code[199] <= 129;
-Y_AC_run_code[200] <= 130;
-Y_AC_run_code[201] <= 131;
-Y_AC_run_code[202] <= 132;
-Y_AC_run_code[210] <= 133;
-Y_AC_run_code[211] <= 134;
-Y_AC_run_code[212] <= 135;
-Y_AC_run_code[213] <= 136;
-Y_AC_run_code[214] <= 137;
-Y_AC_run_code[215] <= 138;
-Y_AC_run_code[216] <= 139;
-Y_AC_run_code[217] <= 140;
-Y_AC_run_code[218] <= 141;
-Y_AC_run_code[225] <= 142;
-Y_AC_run_code[226] <= 143;
-Y_AC_run_code[227] <= 144;
-Y_AC_run_code[228] <= 145;
-Y_AC_run_code[229] <= 146;
-Y_AC_run_code[230] <= 147;
-Y_AC_run_code[231] <= 148;
-Y_AC_run_code[232] <= 149;
-Y_AC_run_code[233] <= 150;
-Y_AC_run_code[234] <= 151;
-Y_AC_run_code[241] <= 152;
-Y_AC_run_code[242] <= 153;
-Y_AC_run_code[243] <= 154;
-Y_AC_run_code[244] <= 155;
-Y_AC_run_code[245] <= 156;
-Y_AC_run_code[246] <= 157;
-Y_AC_run_code[247] <= 158;
-Y_AC_run_code[248] <= 159;
-Y_AC_run_code[249] <= 160;
-Y_AC_run_code[250] <= 161;
-	Y_AC_run_code[16] <= 0;
-	Y_AC_run_code[32] <= 0;
-	Y_AC_run_code[48] <= 0;
-	Y_AC_run_code[64] <= 0;
-	Y_AC_run_code[80] <= 0;
-	Y_AC_run_code[96] <= 0;
-	Y_AC_run_code[112] <= 0;
-	Y_AC_run_code[128] <= 0;
-	Y_AC_run_code[144] <= 0;
-	Y_AC_run_code[160] <= 0;
-	Y_AC_run_code[176] <= 0;
-	Y_AC_run_code[192] <= 0;
-	Y_AC_run_code[208] <= 0;
-	Y_AC_run_code[224] <= 0;
-end	
 
 // Each block below sets individual bits [31:27] of the JPEG_bitstream register
 // based on the enable_module signal and specific timing/control conditions.
