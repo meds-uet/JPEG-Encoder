@@ -11,6 +11,7 @@
 // Date:15th July,2025.
 
 `timescale 1ns / 100ps
+`include "y_huff_constants.svh"
 
 module y_huff (
     input  logic         clk,                  // Clock signal
