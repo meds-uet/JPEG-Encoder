@@ -3,10 +3,7 @@
 
 package QUANTIZER_constants;
 
-  
-  // Module Constants for JPEG Quantizer
-
-
+ 
   // Matrix Size (8x8 for DCT)
   localparam int MATRIX_SIZE = 8;
 
