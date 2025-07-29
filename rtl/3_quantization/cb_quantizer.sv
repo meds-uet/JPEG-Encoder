@@ -13,7 +13,6 @@
 // Author: Navaal Noshi
 // Date: 29th July, 2025
 
-
 `timescale 1ns / 100ps
 
 `include "QUANTIZER_constants.sv"
@@ -26,7 +25,6 @@ module cb_quantizer (
     output logic out_enable
 );
     
-
     logic [15:0] QQ_MATRIX [0:7][0:7];  // Scaled reciprocal of Q_MATRIX
     logic signed [31:0] Z_ext   [0:7][0:7];
     logic signed [22:0] Z_temp  [0:7][0:7];
@@ -92,5 +90,4 @@ module cb_quantizer (
             out_enable <= enable_pipe[2];
         end
     end
-
 endmodule
