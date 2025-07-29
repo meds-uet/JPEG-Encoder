@@ -2,14 +2,21 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE file for details.
 // SPDX-License-Identifier: Apache-2.0
 //
-// Module Name: tb_cr_quantizer
-//
 // Description:
 //    This testbench verifies the functionality of the `cr_quantizer` module,
-//    which performs quantization on 8x8 blocks of DCT coefficients for the Cr
-//    (chrominance-red) component of a JPEG image. It applies reset, feeds test
-//    patterns, and compares output with expected values calculated using the
-//    standard JPEG chroma quantization matrix and fixed-point math.
+//    which performs quantization on 8x8 blocks of DCT (Discrete Cosine Transform)
+//    coefficients corresponding to the Cr chrominance component of a JPEG image.
+//    The testbench generates a clock, applies reset, and feeds various test
+//    patterns into the input matrix `Z`, including maximum values, ramp sequences,
+//    and checkerboard alternating patterns.
+//
+//    It computes the expected quantized output using the same quantization matrix
+//    as the `cr_quantizer` module and a fixed-point approximation:
+//    multiplying by (4096 / Q[i][j]) and right-shifting by 12, with rounding.
+//
+//    After waiting for the pipeline to complete (signaled by `out_enable`),
+//    the testbench prints the input, expected, and actual output matrices
+//    side-by-side in a horizontal format for easy visual verification.
 //
 // Author: Navaal Noshi
 // Date: 25th July, 2025
