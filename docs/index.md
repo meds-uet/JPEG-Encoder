@@ -56,7 +56,7 @@ The output of the encoder is a 32-bit JPEG bitstream provided on the JPEG_bitstr
 
 
 <div align="center">
- <img src="./images_design_diagrams/JPEG-pipeline_diagram.png alt="JPEG Pipeline Diagram" width="700" height="400">
+ <img src="./images_design_diagrams/JPEG-pipeline_diagram.png alt="JPEG Pipeline Diagram" width="700" height="800">
 </div>
 
 
@@ -84,7 +84,7 @@ To implement this efficiently in hardware, all coefficients are scaled by 2¹³ 
 ### `*_dct`: DCT Modules
 
 <div align="center">
-<img src="./images_design_diagrams/JPEG-dct.png" alt="JPEG DCT Block Diagram" width="600" height="580">
+<img src="./images_design_diagrams/JPEG-dct.png" alt="JPEG DCT Block Diagram" width="600" height="480">
 </div>
 
 The `y_dct, cb_dct, and cr_dct modules` each perform a 2D Discrete Cosine Transform (DCT) on 8×8 blocks of image data corresponding to the Y (luminance), Cb (chroma blue), and Cr (chroma red) components in a JPEG encoder. This transformation shifts pixel data from the spatial domain to the frequency domain, enabling efficient compression. The computation follows the formula 
@@ -98,7 +98,7 @@ where T is the scaled DCT matrix (scaled by 2¹⁴ = 16384 for fixed-point preci
 ### `*_quantizer`: Quantization Modules
 
 <div align="center">
- <img src="./images_design_diagrams/JPEG-quantization.png" alt="JPEG Quantization Diagram" width="600" height="580">
+ <img src="./images_design_diagrams/JPEG-quantization.png" alt="JPEG Quantization Diagram" width="600" height="480">
 </div>
 
 The `y_quantizer,cr_quantizer,cb_quantizer module` performs lossy compression by quantizing an 8×8 block of Y (luminance) DCT coefficients. Instead of dividing each coefficient by a quantization constant (which is computationally expensive in hardware), the module multiplies it with a precomputed reciprocal value scaled by 2¹² (4096). These reciprocal values (e.g., QQ1_1 = 4096 / Q1_1) are stored in a matrix and computed at compile time. The module operates in a 3-stage pipeline: first, sign-extending the 11-bit DCT input to 32 bits; second, multiplying with the scaled reciprocal; and third, performing a right-shift and rounding based on bit 11 of the result to finalize the quantized value. This rounding effectively removes the 2¹² scaling factor and ensures accurate fixed-point results. The final quantized output is a signed 11-bit value. 
@@ -108,7 +108,7 @@ The `y_quantizer,cr_quantizer,cb_quantizer module` performs lossy compression by
 ### `*_huff`: Huffman Encoding
 
 <div align="center">
-  <img src="./images_design_diagrams/JPEG-huff.png" alt="JPEG Huffman Encoding Diagram" width="640" height="500">
+  <img src="./images_design_diagrams/JPEG-huff.png" alt="JPEG Huffman Encoding Diagram" width="640" height="400">
 </div>
 
 The `y_huff, cb_huff, and cr_huff modules` perform JPEG-compliant Huffman encoding for the Y (luminance), Cb (chroma-blue), and Cr (chroma-red) channels, respectively. Each module operates in five stages: (1) extracting sign and magnitude of the quantized DCT coefficients, (2) applying run-length encoding (RLE) to compress sequences of zero-valued AC coefficients, (3) performing lookups in predefined JPEG Huffman tables, (4) packing the variable-length Huffman codes and amplitudes into 32-bit words, and (5) outputting the encoded data stream. For each 8×8 block, the DC coefficient is encoded first as a difference from the previous block’s DC value, followed by the AC coefficients traversed in zigzag order. Before Huffman encoding, the 8×8 quantized matrix is transposed to preserve left-to-right scan order across image blocks, compensating for the row–column operations used during DCT. Although the Huffman tables are customizable at compile-time, they are fixed during runtime. All possible Huffman codes should be included, even for small images, to avoid invalid encoding scenarios. These modules enable effective entropy coding, significantly reducing the size of the compressed JPEG output.
