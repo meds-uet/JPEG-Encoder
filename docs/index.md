@@ -208,7 +208,7 @@ JPEG_Encoder/
 ---
 ## Testbenches
 
-##  `tb_rgb2ycrcb`
+##  1. `tb_rgb2ycrcb`
 
 ### 1. Purpose of Test Cases
 The testbench is designed to check the accuracy of color space conversion under common edge cases and validate robustness with random RGB inputs. It ensures proper pipeline behavior, rounding, and output timing of the rgb2ycrcb module.
@@ -270,11 +270,11 @@ Validate the 2D Discrete Cosine Transform for luminance and chrominance componen
 
 ---
 
-## `tb_*_quantizer`
-### Purpose
+## 3. `tb_*_quantizer`
+### 1. Purpose
 The test cases are designed to confirm that the quantization logic correctly applies scaling and rounding to signed DCT coefficients. The expected outputs are computed using the same reciprocal-based method used in hardware: multiplying by (4096 / Q[i][j]), right-shifting by 12, and rounding toward zero. The goal is to validate accuracy, rounding behavior, and pipeline timing across various coefficient patterns.
 
-### Input Pattern
+### 2.  Input Pattern
 The testbench uses four structured input patterns to thoroughly test the quantizer:
 - All 1023: Applies the maximum positive value (11'sd1023) to all matrix elements.
 - Ramp Pattern: Gradually increasing values from 0 to 63 across the matrix.
@@ -282,7 +282,7 @@ The testbench uses four structured input patterns to thoroughly test the quantiz
 - Random Values: 64 random signed 11-bit inputs in the range [-1024, +1023] for general-case validation.
 - These patterns are stored in the test_input matrix and applied to the Z input of the DUT.
   
-### Expected Outputs
+### 3. Expected Outputs
 After applying inputs and enabling the module for one clock cycle, the testbench waits for the out_enable signal to assert (indicating pipeline completion). It then prints the input matrix, expected quantized values, and actual hardware outputs side-by-side for visual comparison
 
  ### *** *_quantizer:***
@@ -329,24 +329,6 @@ Validate Huffman encoding of quantized DCT blocks for Y, Cb, Cr. Checks bitstrea
 
 ---
 
-## `tb_fifo_out`
-### Purpose
-Test final bitstream packager. Verifies interleaving, alignment, and FIFO register tracking.
-### Test Cases
-* Stream of 24-bit dummy JPEG segments
-* Varying enable pulses
-* Alignment edge cases
-### Input Vectors
-* Clock and Reset
-* `data_in [23:0]`: 10 test values (e.g. 123456, 123457...)
-* `enable = 1` to write to FIFO
-### Expected Outputs
-* `JPEG_bitstream [31:0]`: Padded, aligned output
-* `data_ready = 1` when valid
-* `orc_reg`: Register count tracking state
-* Output is printed and checked for byte alignment
-
----
 ## `tb_sync_fifo_32`
 ### Purpose
 Verify 32-bit synchronous FIFO. Validates write/read functionality and `fifo_empty` signal.
@@ -367,21 +349,29 @@ Verify 32-bit synchronous FIFO. Validates write/read functionality and `fifo_emp
 ---
 
 ## `tb_sync_fifo_ff`
+### 1. Purpose
+This testbench verifies the behavior of the sync_fifo_ff module — a synchronous FIFO buffer with a 91-bit wide data interface and a special rollover_write input that triggers an intentional "bubble" or skipped entry in the FIFO. The design includes standard FIFO operations along with extended functionality, making it important to validate both normal and rollover behavior.The testbench aims to confirm: Standard FIFO write and read sequencing,Correct handling of valid data (rdata_valid) and empty flags.The effect of rollover_write, which should insert a skipped (or invalid) slot in the FIFO write pipeline.
 
-### Purpose
-Verify 91-bit FIFO with `rollover_write` behavior. Designed for special pipelined skip-write operations.
-### Test Cases
-* Write sequence with rollover
-* Readback with skipped entries
-### Input Vectors
-* Clock and Reset
-* `write_data [90:0]`
-* `rollover_write = 1` on selected cycles
-### Expected Outputs
+### 2.  Input Pattern
+Standard Write & Read:
+- Four 91-bit data values (100, 101, 102, 103) are written into the FIFO.
+- These values are read back in order using synchronized read_req pulses and checking rdata_valid to confirm valid outputs.
+Rollover Write Test:
+- A special write_rollover(500) is issued, expected to skip a FIFO entry.
+- Two more values (999, 777) are written normally.
+- All entries are read sequentially to observe if the rollover_write caused a gap or delay in FIFO output behavior.
+  
+### 3. Expected Outputs
+Read operations are synchronized using read_req and a wait on rdata_valid.This helps trace FIFO behavior, especially around skipped or inserted bubbles from the rollover_write mechanism.
 
-<div align="center">
+ ### *** tb_sync_fifo_ff :***
+  
+  <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_ff_EO_CO.png?raw=true" width="640" height="400">
-</div>
+  </div>
+  
+
+
 
 ---
 
