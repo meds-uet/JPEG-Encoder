@@ -24,8 +24,8 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 * Universally supported across hardware/software platforms
 
 ---
-## RTL
 ## System Architecture
+## RTL
 
 ### Top-Level Block Diagram
 
@@ -39,6 +39,8 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 * `end_of_file_signal`: Flags final pixel
 * `rst`: Active-high reset
 * `clk`: Clock signal
+* ### Detail:
+  The jpeg_top module is the main entry point for the JPEG encoder core and interfaces with minimal external signals. It operates using a single global clock, with all registers synchronized to its rising edge. The main control signals are enable, reset, and end_of_file_signal. The enable signal should be asserted high when pixel data is available and must remain high while feeding 64 pixels (one 8×8 block) over 64 consecutive clock cycles. After each block, enable must stay high for at least 33 additional clock cycles (during which no new data is provided), followed by one clock cycle of enable being low before loading the next block. This pattern repeats for all blocks in the image. Pixel data is provided via a 24-bit input bus, where blue is in bits [23:16], green in [15:8], and red in [7:0]. The end_of_file_signal is asserted high at the first cycle of the last 8×8 block to notify the core that the current data is the final block and that all remaining bits must be output.
 
 #### Outputs:
 
@@ -46,6 +48,8 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 * `end_of_file_bitstream_count [3:0]`: Remaining byte count
 * `eof_data_partial_ready`: Final block ready signal
 * `data_ready`: Valid compressed output signal
+* ### Detail:
+ The output of the encoder is a 32-bit JPEG bitstream provided on the JPEG_bitstream signal. The most significant byte is in bits [31:24], followed by [23:16], [15:8], and [7:0]. This output is valid only when the data_ready signal is high, which is asserted for one clock cycle per valid output word. For the final block, if the remaining bits do not fill an entire 32-bit word, the signal eof_data_partial_ready will go high for one cycle, and the number of valid bits in JPEG_bitstream is indicated by the 5-bit end_of_file_bitstream_count. This ensures that no compressed data is lost at the end of the encoding process.
 
 ---
 
@@ -58,66 +62,20 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 The JPEG encoding pipeline begins its process with the `rgb2ycbcr` module, which takes incoming RGB pixel data and, once an 8x8 block is processed, outputs separate Y, Cb, and Cr data blocks along with a `data_ready` signal; these outputs simultaneously fan out as inputs to the three parallel `y_dct`, `cb_dct`, and `cr_dct` modules. Each DCT module then transforms its respective block into 12-bit signed frequency domain coefficients (`*_dct_data`), passing these, along with `dct_valid` and `block_valid` signals, to their corresponding `y_quantizer`, `cb_quantizer`, and `cr_quantizer` modules. From the quantization stage, the 8-bit `*_quantized_data` and control signals (`quant_valid`, `block_done`) are routed to the respective `y_huff`, `cb_huff`, and `cr_huff` Huffman encoding modules. In a parallel path from the quantization stage, the 12-bit quantized data also feeds into intermediate buffers (`yd_q_h`, `cbd_q_h`, `crd_q_h`), which then combine to form a 24-bit `data_in` for the `pre_fifo` stage, subsequently feeding into the `fifo_out` module. Both the Huffman encoders (providing `vc_code` and `code_len`) and the `pre_fifo` (providing `data_in`) connect to this `fifo_out` module, which then packs the incoming data into a continuous 32-bit `JPEG_bitstream`, also outputting `data_ready` and `orc_reg` (output register count). This 32-bit `JPEG_bitstream` then directly connects to a `sync_fifo_32` for synchronized data flow, whose output (`syncd_data` and `data_ready`) then feeds into the `ff_checker` module for bitstream integrity checks. Finally, the `ff_checker`'s validated output (`checked_data` and `checked_valid`) connects to the `jpeg_out` module, which serves as the ultimate output interface, providing the final `output_data` along with `output_valid` and `write_enable` signals to the external environment.
 
 ---
-## Sub-modules:
-```
-JPEG_Encoder/
-├── RGB2YCBCR/
-│   └── rgb2ycbcr.sv
-├── DCT/
-│   ├── y_dct/
-│   │   └── y_dct.sv
-│   ├── cb_dct/
-│   │   └── cb_dct.sv
-│   └── cr_dct/
-│       └── cr_dct.sv
-├── Quantizer/
-│   ├── y_quantizer/
-│   │   └── y_quantizer.sv
-│   ├── cb_quantizer/
-│   │   └── cb_quantizer.sv
-│   └── cr_quantizer/
-│       └── cr_quantizer.sv
-├── Huffman_Encoder/
-│   ├── y_huff/
-│   │   └── y_huff.sv
-│   ├── cb_huff/
-│   │   └── cb_huff.sv
-│   └── cr_huff/
-│       └── cr_huff.sv
-├── FIFO_System/
-│   ├── pre_fifo/
-│   │   └── pre_fifo.sv
-│   ├── sync_fifo_32/
-│   │   └── sync_fifo_32.sv
-│   └── fifo_out/
-│       └── fifo_out.sv
-├── Byte_Handler/
-│   └── ff_checker/
-│       └── ff_checker.sv
-├── d_q_h/
-│   ├── yd_q_h/
-│   │   └── yd_q_h.sv
-│   ├── crd_q_h/
-│   │   └── crd_q_h.sv
-│   └── cbd_q_h/
-│       └── cbd_q_h.sv
-└── jpeg_out/
-    └── jpeg_out.sv
-```
-
----
-## Module Descriptions
+## Modules Descriptions
 ### `RGB2YCBCR`
 
 <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-rgb2ycrcb.png" width="640" height="440">
 </div>
 
-* Converts RGB to YCbCr using fixed-point arithmetic
-* **Stage 1**: Multiply-add stage with coefficients for Y, Cb, Cr
-* **Stage 2**: Round and clip to 8-bit output
-* **Stage 3**: Enable signal delay for synchronization
+The rgb2ycbcr module is the first processing block in the JPEG encoder pipeline, responsible for converting incoming 24-bit RGB pixel data {B[7:0], G[7:0], R[7:0]} into the YCbCr color space {Cr, Cb, Y} using the ITU-R BT.601 standard. This transformation separates luminance (Y) from chrominance (Cb and Cr) using weighted sums of the red, green, and blue components:
 
+                                                    Y  =  0.299 × R + 0.587 × G + 0.114 × B  
+                                                    Cb = -0.1687 × R - 0.3313 × G + 0.5 × B + 128  
+                                                    Cr =  0.5 × R - 0.4187 × G - 0.0813 × B + 128 
+                                                    
+To implement this efficiently in hardware, all coefficients are scaled by 2¹³ (8192) and applied using fixed-point arithmetic. The conversion is pipelined in two stages: the first computes fixed-point products and partial sums, while the second performs rounding (based on the 13th discarded bit), adds chrominance offsets, right-shifts to restore 8-bit values, clips the results to the 0–255 range, and registers the outputs. The output YCbCr data becomes valid after two clock cycles, and a pipelined enable_out signal ensures accurate timing. The module is fully synchronous, resettable, and optimized for real-time JPEG compression and video processing applications.
 ---
 
 ### `*_dct`: DCT Modules
@@ -126,11 +84,11 @@ JPEG_Encoder/
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-dct.png" width="600" height="580">
 </div>
 
-* Modules: `y_dct`, `cb_dct`, `cr_dct`
-* Accepts 8×8 block, outputs 64 DCT coefficients (Z11 to Z88)
-* **Stage 1**: Row-wise DCT (matrix multiplication)
-* **Stage 2**: Column-wise DCT on intermediate values
-* **Stage 3**: Accumulate and round to generate output
+The y_dct, cb_dct, and cr_dct modules each perform a 2D Discrete Cosine Transform (DCT) on 8×8 blocks of image data corresponding to the Y (luminance), Cb (chroma blue), and Cr (chroma red) components in a JPEG encoder. This transformation shifts pixel data from the spatial domain to the frequency domain, enabling efficient compression. The computation follows the formula 
+
+                                                          DCT_Output = T × Block × inv(T)
+
+where T is the scaled DCT matrix (scaled by 2¹⁴ = 16384 for fixed-point precision). The transformation is performed in three pipelined stages: row-wise matrix multiplication, column-wise transformation using the transpose of T, and final accumulation and rounding. To simplify hardware, these modules avoid subtracting 128 from each pixel (required for zero-centering in standard DCT). Instead, the orthonormality of DCT matrix rows 2–8 ensures the +128 offset cancels out naturally. Only the first row introduces bias, which is corrected by subtracting a constant value (5932032) from the corresponding output coefficients. This optimization reduces subtraction operations from 64 to just 8 per block, enhancing both speed and resource efficiency.
 
 ---
 
@@ -140,11 +98,7 @@ JPEG_Encoder/
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-quantization.png" width="600" height="580">
 </div>
 
-* Quantizes DCT coefficients using reciprocal pre-computed multipliers
-* 3-stage pipelined structure:
-  1. **Sign Extension**: Convert signed 11-bit to 32-bit
-  2. **Multiply**: With scaled reciprocal Q matrix value
-  3. **Round & Shift**: Arithmetic right shift by 12
+The y_quantizer,cr_quantizer,cb_quantizer module performs lossy compression by quantizing an 8×8 block of Y (luminance) DCT coefficients. Instead of dividing each coefficient by a quantization constant (which is computationally expensive in hardware), the module multiplies it with a precomputed reciprocal value scaled by 2¹² (4096). These reciprocal values (e.g., QQ1_1 = 4096 / Q1_1) are stored in a matrix and computed at compile time. The module operates in a 3-stage pipeline: first, sign-extending the 11-bit DCT input to 32 bits; second, multiplying with the scaled reciprocal; and third, performing a right-shift and rounding based on bit 11 of the result to finalize the quantized value. This rounding effectively removes the 2¹² scaling factor and ensures accurate fixed-point results. The final quantized output is a signed 11-bit value. This structure eliminates run-time division, simplifies hardware logic, and ensures efficient pipelined execution. 
 
 ---
 
@@ -154,12 +108,10 @@ JPEG_Encoder/
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-huff.png" width="640" height="500">
 </div>
 
-* JPEG-compliant DC and AC Huffman coding
-* **Stage 1**: Sign and magnitude extraction
-* **Stage 2**: Run-length encoding of zeroes
-* **Stage 3**: Table lookup for Huffman codes
-* **Stage 4**: Pack variable-length codes
-* **Stage 5**: Output data 
+The y_huff, cb_huff, and cr_huff modules perform JPEG-compliant Huffman encoding for the Y (luminance), Cb (chroma-blue), and Cr (chroma-red) channels, respectively. Each module operates in five stages: (1) extracting sign and magnitude of the quantized DCT coefficients, (2) applying run-length encoding (RLE) to compress sequences of zero-valued AC coefficients, (3) performing lookups in predefined JPEG Huffman tables, (4) packing the variable-length Huffman codes and amplitudes into 32-bit words, and (5) outputting the encoded data stream. For each 8×8 block, the DC coefficient is encoded first as a difference from the previous block’s DC value, followed by the AC coefficients traversed in zigzag order. Before Huffman encoding, the 8×8 quantized matrix is transposed to preserve left-to-right scan order across image blocks, compensating for the row–column operations used during DCT. Although the Huffman tables are customizable at compile-time, they are fixed during runtime. All possible Huffman codes should be included, even for small images, to avoid invalid encoding scenarios. These modules enable effective entropy coding, significantly reducing the size of the compressed JPEG output.
+
+The y_d_q_h, cb_d_q_h, and cr_d_q_h modules each combine the DCT, quantizer, and Huffman encoder into a single compact processing unit for the Y, Cb, and Cr components respectively.
+
 ---
 
 ### `FIFO and FSM Handling`:
@@ -170,39 +122,31 @@ JPEG_Encoder/
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-fsm.png" width="800" height="580">
 </div>
 
-#### 1. `sync_fifo_32`:
+The pre_fifo module serves as an organizational wrapper that connects the outputs from the y_huff, cb_huff, and cr_huff modules, along with the rgb2ycbcr module. This module itself does not introduce any additional logic—it simply groups these modules into a single unit.
 
-* Stores 32-bit Huffman output words
-* Read/write control and flow flags (`not_empty`, `not_full`)
-  
-#### 2. `fifo_out`:
+The next stage in the hierarchy is the fifo_out module. It incorporates the pre_fifo output and connects it to three instances of the sync_fifo_32 module. Each sync_fifo_32 serves as a temporary buffer for the Huffman-encoded data from the Y, Cb, and Cr channels. These FIFOs are 32 bits wide and 16 entries deep.
 
-* Converts 32-bit word into 8-bit byte stream
-* Interleaves Y → Cb → Cr order
-* Includes pipelined control and muxing logic
+Although this configuration is generally sufficient, a smaller quantization table (which results in longer Huffman codes) can lead to buffer overflow, particularly for the Cb or Cr FIFOs. If more than 512 bits (32 bits × 16 entries) are generated for any one chrominance block, the corresponding FIFO will overflow. In practice, overflows were not observed during image encoding tests. The Y channel FIFO is read from more frequently and is therefore less prone to overflow.
 
-#### 3. `ff_checker`:
-
-* Detects 0xFF bytes in output
-* Inserts 0x00 after 0xFF (JPEG standard)
-
-#### 4. `jpeg_out`:
-
-* Outputs final valid bytes
-* Generates `write_enable`, `output_valid`
+The output JPEG bitstream is constructed in the following order: Huffman codes for the Y block first, followed by the Cb, and finally the Cr block for each 8×8 macroblock. This sequence is repeated for each subsequent block in the image.After fifo_out, the bitstream is passed to the ff_checker module. This module scans the byte-aligned bitstream for any occurrences of the 0xFF byte. According to the JPEG specification, if an FF is encountered, a 00 byte must be inserted immediately after it to prevent misinterpretation as a marker. The ff_checker implements this byte-stuffing using an internal sync_fifo for temporary storage.
+Finally, the jpeg_out top-level module encapsulates both the fifo_out and ff_checker modules. It generates the final JPEG-compliant bitstream, ensuring proper formatting and marker alignment for output.
 
 ---
 
 ## FSM State Table
 
+<div align="center">
+
 | **State** | **Action**                             |
 | --------- | -------------------------------------- |
 | IDLE      | Waits for Y FIFO to be non-empty       |
-| READ\_Y   | Reads 1 byte from Y FIFO               |
-| CHECK\_FF | If byte == 0xFF, set `insert_zero = 1` |
+| READ_Y    | Reads 1 byte from Y FIFO               |
+| CHECK_FF  | If byte == 0xFF, set `insert_zero = 1` |
 | OUTPUT    | Outputs byte (and optionally 0x00)     |
-| READ\_CB  | Reads from Cb FIFO                     |
-| READ\_CR  | Reads from Cr FIFO                     |
+| READ_CB   | Reads from Cb FIFO                     |
+| READ_CR   | Reads from Cr FIFO                     |
+
+</div>
 
 
 ---
