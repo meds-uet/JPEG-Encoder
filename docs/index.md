@@ -235,7 +235,7 @@ Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommo
 
 ---
 
-## 2. *_dct:
+## 2. `*_dct:`
 ### 1. Purpose of Test Cases
 his testbench verifies the cr_dct module, which performs an 8×8 Discrete Cosine Transform (DCT) on image blocks as part of JPEG encoding. It drives 8-bit input samples into the DCT module, monitors the resulting signed 11-bit coefficients, and validates timing and output correctness.The testbench checks: Correct DCT coefficient generation for uniform, gradient, and pattern-based input blocks,Expected DC coefficient magnitudes for constant blocks (e.g., all 128 → DC ≈ 4096),Pipeline latency and output readiness signaled by output_enable.
 
