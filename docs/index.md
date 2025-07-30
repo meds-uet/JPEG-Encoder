@@ -28,7 +28,7 @@ This project implements a **hardware JPEG encoder** using **SystemVerilog**. It 
 ### Top-Level Block Diagram
 
 <div align="center">
-  <img src="./images_design_diagrams/JPEG-Top-level-module.png" width="700" height="400">
+<img src="./images_design_diagrams/JPEG-Top-level-module.png" alt="JPEG Top-level Module" width="700" height="400">
 </div>
 
 #### Inputs:
@@ -54,7 +54,7 @@ The output of the encoder is a 32-bit JPEG bitstream provided on the JPEG_bitstr
 
 ## Pipeline Architecture
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-pipeline_diagram.png" width="640" height="480">
+<img src="./docs/images_design_diagrams/JPEG-pipeline_diagram.png" alt="JPEG Pipeline Diagram" width="640" height="480">
 </div>
 
 
