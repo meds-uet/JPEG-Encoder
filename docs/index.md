@@ -23,8 +23,6 @@ This project implements a **hardware JPEG encoder** using **SystemVerilog**. It 
 
 ---
 ## System Architecture
-## RTL
-
 ### Top-Level Block Diagram
 
 <div align="center">
