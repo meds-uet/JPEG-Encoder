@@ -1,7 +1,6 @@
 # JPEG-Based Lossy Image Compression System
 
 > **Hardware JPEG Encoder (SystemVerilog Implementation)**
-> Real-time, low-power RGB to JPEG bitstream converter for embedded systems
 >
 > 🗕️ *Last updated: July 30, 2025*
 > © 2025 [Maktab-e-Digital Systems Lahore](https://github.com/meds-uet). Licensed under the Apache 2.0 License.
@@ -13,8 +12,7 @@
 This project implements a **hardware JPEG encoder** using **SystemVerilog**. It compresses RGB image data following the standard JPEG pipeline:
 
                                Color Conversion → DCT → Quantization → Huffman Coding → Bitstream Assembly 
-
-Designed for **real-time**, **low-power**, and **embedded platforms**, this encoder significantly reduces image size while preserving visual quality.
+---
 
 ###  Why JPEG?
 
