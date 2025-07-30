@@ -88,7 +88,7 @@ To implement this efficiently in hardware, all coefficients are scaled by 2¹³ 
 
 The `y_dct, cb_dct, and cr_dct modules` each perform a 2D Discrete Cosine Transform (DCT) on 8×8 blocks of image data corresponding to the Y (luminance), Cb (chroma blue), and Cr (chroma red) components in a JPEG encoder. This transformation shifts pixel data from the spatial domain to the frequency domain, enabling efficient compression. The computation follows the formula 
 
-                                                          DCT_Output = T × Block × inv(T)
+                                                    DCT_Output = T × Block × inv(T)
 
 where T is the scaled DCT matrix (scaled by 2¹⁴ = 16384 for fixed-point precision). The transformation is performed in three pipelined stages: row-wise matrix multiplication, column-wise transformation using the transpose of T, and final accumulation and rounding. To simplify hardware, these modules avoid subtracting 128 from each pixel (required for zero-centering in standard DCT). Instead, the orthonormality of DCT matrix rows 2–8 ensures the +128 offset cancels out naturally. Only the first row introduces bias, which is corrected by subtracting a constant value (5932032) from the corresponding output coefficients. 
 
