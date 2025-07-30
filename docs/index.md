@@ -84,7 +84,7 @@ To implement this efficiently in hardware, all coefficients are scaled by 2¹³ 
 ### `*_dct`: DCT Modules
 
 <div align="center">
-<img src="./images_design_diagrams/JPEG-dct.png" alt="JPEG DCT Block Diagram" width="600" height="480">
+<img src="./images_design_diagrams/JPEG-dct.png" alt="JPEG DCT Block Diagram" width="550" height="480">
 </div>
 
 The `y_dct, cb_dct, and cr_dct modules` each perform a 2D Discrete Cosine Transform (DCT) on 8×8 blocks of image data corresponding to the Y (luminance), Cb (chroma blue), and Cr (chroma red) components in a JPEG encoder. This transformation shifts pixel data from the spatial domain to the frequency domain, enabling efficient compression. The computation follows the formula 
@@ -98,7 +98,7 @@ where T is the scaled DCT matrix (scaled by 2¹⁴ = 16384 for fixed-point preci
 ### `*_quantizer`: Quantization Modules
 
 <div align="center">
- <img src="./images_design_diagrams/JPEG-quantization.png" alt="JPEG Quantization Diagram" width="600" height="480">
+ <img src="./images_design_diagrams/JPEG-quantization.png" alt="JPEG Quantization Diagram" width="550" height="480">
 </div>
 
 The `y_quantizer,cr_quantizer,cb_quantizer module` performs lossy compression by quantizing an 8×8 block of Y (luminance) DCT coefficients. Instead of dividing each coefficient by a quantization constant (which is computationally expensive in hardware), the module multiplies it with a precomputed reciprocal value scaled by 2¹² (4096). These reciprocal values (e.g., QQ1_1 = 4096 / Q1_1) are stored in a matrix and computed at compile time. The module operates in a 3-stage pipeline: first, sign-extending the 11-bit DCT input to 32 bits; second, multiplying with the scaled reciprocal; and third, performing a right-shift and rounding based on bit 11 of the result to finalize the quantized value. This rounding effectively removes the 2¹² scaling factor and ensures accurate fixed-point results. The final quantized output is a signed 11-bit value. 
