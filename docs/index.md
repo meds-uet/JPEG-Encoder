@@ -30,7 +30,7 @@ Designed for **real-time**, **low-power**, and **embedded platforms**, this enco
 ### Top-Level Block Diagram
 
 <div align="center">
-  <img src="./images_design_diagrams/JPEG-Top-level-module.png" width="900" height="400">
+  <img src="./images_design_diagrams/JPEG-Top-level-module.png" width="700" height="400">
 </div>
 
 #### Inputs:
