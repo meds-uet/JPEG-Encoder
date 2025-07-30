@@ -136,20 +136,7 @@ Finally, the jpeg_out top-level module encapsulates both the fifo_out and ff_che
 
 ## FSM State Table
 
-<div align="center">
-
-
-| **State** | **Action**                                    |
-|-----------|-----------------------------------------------|
-| IDLE      | Waits for Y FIFO to be non-empty              |
-| READ_Y    | Reads 1 byte from Y FIFO                      |
-| CHECK_FF  | If byte == 0xFF, set `insert_zero = 1`        |
-| OUTPUT    | Outputs byte (and optionally 0x00)            |
-| READ_CB   | Reads from Cb FIFO                            |
-| READ_CR   | Reads from Cr FIFO                            |
-
-
-</div>
+This state machine governs the final output of the JPEG encoder by coordinating the reading and byte-stuffing of data from the Y, Cb, and Cr FIFOs. Initially, in the IDLE state, it waits until the Y FIFO has at least one byte available. Once ready, it transitions to the READ_Y state to fetch a byte of luminance (Y) data. After reading, the system enters the CHECK_FF state, where it checks if the byte is 0xFF. If so, it sets a flag (insert_zero = 1) to trigger byte-stuffing, a necessary step in JPEG encoding to avoid confusion with marker codes. In the OUTPUT state, the byte is sent to the output stream, and if the flag is set, a 0x00 byte is inserted right after. After processing the Y data, the state machine moves to READ_CB to handle the blue chrominance (Cb) byte and then to READ_CR for the red chrominance (Cr) byte, applying the same read, check, and output logic. This sequence ensures that the final JPEG bitstream is correctly serialized and compliant with the JPEG standard.
 
 
 ---
