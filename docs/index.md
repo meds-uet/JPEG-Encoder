@@ -228,7 +228,7 @@ Ten 24-bit RGB values are generated using $urandom_range(0, 255) to simulate gen
 Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommodate pipeline latency. The testbench checks for a valid enable_out and prints the YCbCr result in a readable format. This allows visual confirmation and debugging, and can be extended for automated comparisons with a golden reference model if needed.
 
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="640" height="360">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/rgb2ycrcb_EO_CO.png" width="640" height="360">
   </div>
 
 
