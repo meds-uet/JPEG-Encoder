@@ -175,9 +175,9 @@ Ten 24-bit RGB values are generated using $urandom_range(0, 255) to simulate gen
  ### 3. Expected Output:
 Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommodate pipeline latency. The testbench checks for a valid enable_out and prints the YCbCr result in a readable format. 
 
-  <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/rgb2ycrcb_EO_CO.png" width="900" height="680">
-  </div>
+ <div align="center">
+ <img src="./images_testbench_EO_CO/rgb2ycrcb_EO_CO.png" alt="RGB to YCbCr EO/CO Testbench Output" width="900" height="680">
+ </div>
 
 ---
 
@@ -203,13 +203,13 @@ The testbench prints:
  ### ***cr_dct***:
   
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_dct_EO_CO.png?raw=true" width="900" height="680">
+  <img src="./images_testbench_EO_CO/cr_dct_EO_CO.png" alt="Cr DCT EO/CO Testbench Output" width="900" height="680">
 </div>
 
  ### ***cb_dct***:
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_dct_EO_CO.png?raw=true" width="900" height="680">
+ <img src="./images_testbench_EO_CO/cb_dct_EO_CO.png" alt="Cb DCT EO/CO Testbench Output" width="900" height="680">
 </div>
 
 ---
@@ -232,11 +232,11 @@ After applying inputs and enabling the module for one clock cycle, the testbench
  ### *** *_quantizer:***
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="900" height="680">
+  <img src="./images_testbench_EO_CO/quantizer_EO_CO.png" alt="Quantizer EO/CO Testbench Output" width="900" height="680">
   </div>
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_2_EO_CO.png" width="900" height="680">
+  <img src="./images_testbench_EO_CO/quantizer_2_EO_CO.png" alt="Quantizer 2 EO/CO Testbench Output" width="900" height="680">
   </div>
   
 ---
@@ -263,22 +263,23 @@ For each test case, the monitor displays:The evolving state of data_ready, outpu
  ### ***y_huff***:
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_huff_EO_CO.png?raw=true" width="900" height="680">
+ <img src="./images_testbench_EO_CO/y_huff_EO_CO.png" alt="Y Huffman EO/CO Testbench Output" width="900" height="680">
   </div>
 
  ### ***cr_huff***:
   
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_huff_EO_CO.png?raw=true" width="900" height="680">
+  <img src="./images_testbench_EO_CO/cr_huff_EO_CO.png" alt="Cr Huffman EO/CO Testbench Output" width="900" height="680">
 </div>
 
  ### ***cb_huff***:
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_huff_EO_CO.png?raw=true" width="900" height="680">
+<img src="./images_testbench_EO_CO/cb_huff_EO_CO.png" alt="Cb Huffman EO/CO Testbench Output" width="900" height="680">
 </div>
+
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_huff_2_EO_CO.png?raw=true" width="900" height="680">
+  <img src="./images_testbench_EO_CO/cb_huff_2_EO_CO.png" alt="Cb Huffman 2 EO/CO Testbench Output" width="900" height="680">
 </div>
 
 ---
@@ -298,7 +299,7 @@ The test sequence includes:
 The expected output from the testbench includes confirmation of correct write and read sequences, along with validation that the FIFO becomes empty after all data is read.
 
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_32_EO_CO.png?raw=true" width="900" height="680">
+  <img src="./images_testbench_EO_CO/sync_fifo_32_EO_CO.png" alt="Sync FIFO 32 EO/CO Testbench Output" width="900" height="680">
   </div>
 
 ---
@@ -320,7 +321,7 @@ Rollover Write Test:
 Read operations are synchronized using read_req and a wait on rdata_valid.This helps trace FIFO behavior, especially around skipped or inserted bubbles from the rollover_write mechanism.
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_ff_EO_CO.png?raw=true" width="900" height="680">
+  <img src="./images_testbench_EO_CO/sync_fifo_ff_EO_CO.png" alt="Sync FIFO FF EO/CO Testbench Output" width="900" height="680">
   </div>
   
 ---
