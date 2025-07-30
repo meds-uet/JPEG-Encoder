@@ -330,21 +330,22 @@ Validate Huffman encoding of quantized DCT blocks for Y, Cb, Cr. Checks bitstrea
 ---
 
 ## `tb_sync_fifo_32`
-### Purpose
-Verify 32-bit synchronous FIFO. Validates write/read functionality and `fifo_empty` signal.
-### Test Cases
-* Write: 10, 20, 30, 40
-* Read in same order
-* Empty FIFO check after reads
-### Input Vectors
-* Clock and Reset
-* `write_enable = 1` with `write_data`
-* `read_enable = 1` when ready
-### Expected Outputs
+### 1. Purpose
+This testbench validates the core functionality of the sync_fifo_32 module — a 32-bit wide synchronous FIFO. It checks the correctness of write and read operations, verifies the timing of valid read data, and ensures the FIFO empty flag is asserted after all data has been read.The goal of this test is to ensure that the FIFO can: Correctly store and retrieve 32-bit values, Maintain proper read/write synchronization,Assert the fifo_empty flag only after all data has been read out,Assert the rdata_valid signal in line with available data.
 
-<div align="center">
+### 2.  Input Pattern
+The test sequence includes:
+- Reset Initialization – The FIFO is reset to a known empty state.
+- Write Phase – Four distinct 32-bit values (10, 20, 30, 40) are written sequentially using the write_word task.
+- Read Phase – The same values are read back using the read_word task, which waits for rdata_valid to ensure timing correctness.
+- FIFO Empty Check – After all reads, the fifo_empty flag is checked to confirm the FIFO is indeed empty.
+ 
+### 3. Expected Outputs
+The expected output from the testbench includes confirmation of correct write and read sequences, along with validation that the FIFO becomes empty after all data is read.
+
+  <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_32_EO_CO.png?raw=true" width="640" height="400">
-</div>
+  </div>
 
 ---
 
@@ -363,16 +364,11 @@ Rollover Write Test:
   
 ### 3. Expected Outputs
 Read operations are synchronized using read_req and a wait on rdata_valid.This helps trace FIFO behavior, especially around skipped or inserted bubbles from the rollover_write mechanism.
-
- ### *** tb_sync_fifo_ff :***
   
   <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_ff_EO_CO.png?raw=true" width="640" height="400">
   </div>
   
-
-
-
 ---
 
 ##  Licensing
