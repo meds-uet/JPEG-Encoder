@@ -229,43 +229,45 @@ Ten 24-bit RGB values are generated using $urandom_range(0, 255) to simulate gen
 Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommodate pipeline latency. The testbench checks for a valid enable_out and prints the YCbCr result in a readable format. This allows visual confirmation and debugging, and can be extended for automated comparisons with a golden reference model if needed.
 
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/rgb2ycrcb_EO_CO.png" width="640" height="360">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/rgb2ycrcb_EO_CO.png" width="900" height="680">
   </div>
 
 
 ---
 
-## `y_dct_tb`, `cb_dct_tb`, `cr_dct_tb`
-### Purpose
-Validate the 2D Discrete Cosine Transform for luminance and chrominance components. Checks pipeline operation, timing, and coefficient outputs.
-### Test Cases
-* Ramp Pattern: `data_in = i` for i in 0 to 63
-* Constant Block: All values = 100
-* Checkerboard: Alternating 255 and 0
-### Input Vectors
-* Clock and Reset
-* `enable = 1` during input phase
-* `data_in [7:0]`: Serial 8-bit input over 64 cycles
-### Expected Outputs
+## 2. *_dct:
+### 1. Purpose of Test Cases
+his testbench verifies the cr_dct module, which performs an 8×8 Discrete Cosine Transform (DCT) on image blocks as part of JPEG encoding. It drives 8-bit input samples into the DCT module, monitors the resulting signed 11-bit coefficients, and validates timing and output correctness.The testbench checks: Correct DCT coefficient generation for uniform, gradient, and pattern-based input blocks,Expected DC coefficient magnitudes for constant blocks (e.g., all 128 → DC ≈ 4096),Pipeline latency and output readiness signaled by output_enable.
 
+### 2. Input Vectors
+The following input patterns are used to test a wide range of DCT behavior:
+- All 128 (8'h80) — Flat mid-gray block, expecting strong DC term.
+- All 64 (8'h40) — Lower gray level, DC expected ≈ 2048.
+- All 0s — Black block, expecting all-zero coefficients.
+- All 255s — White block, high DC value (≈1020 due to internal shifting).
+- Checkerboard — Alternating 0 and 255, strong high-frequency content.
+- Random Values — Simulates real image data, verifies stability.
+Each test feeds 64 samples serially with proper enable timing, and prints the resulting DCT matrix for visual verification.
 
-* y_dct:
+ ### 3. Expected Output:
+Upon output_enable, the testbench prints: The DCT coefficient matrix in 8×8 layout, A status line indicating test pass and approximate DC coefficient match.
+
+ ### ***y_huff***:
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="640" height="360">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="900" height="680">
   </div>
  
-* cr_dct:
+ ### ***y_huff***:
   
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_dct_EO_CO.png?raw=true" width="640" height="360">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_dct_EO_CO.png?raw=true" width="900" height="680">
 </div>
 
-
-*cb_dct:
+ ### ***y_huff***:
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_dct_EO_CO.png?raw=true" width="640" height="360">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_dct_EO_CO.png?raw=true" width="900" height="680">
 </div>
 
 ---
@@ -288,11 +290,11 @@ After applying inputs and enabling the module for one clock cycle, the testbench
  ### *** *_quantizer:***
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="900" height="650">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="900" height="680">
   </div>
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_2_EO_CO.png" width="900" height="650">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_2_EO_CO.png" width="900" height="680">
   </div>
   
 ---
