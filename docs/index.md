@@ -222,7 +222,7 @@ Fixed RGB Values:
 - (0, 255, 0) — Green
 - (0, 0, 255) — Blue
 - (128, 128, 128) — Mid-gray
-Random RGB Values:
+- Random RGB Values:
 Ten 24-bit RGB values are generated using $urandom_range(0, 255) to simulate general use cases and uncover hidden bugs.
 
  ### 3. Expected Output:
