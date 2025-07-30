@@ -227,7 +227,7 @@ Verifies the `rgb2ycrcb` module that converts RGB input into YCbCr format using 
 
 ---
 
-## ✅ `y_dct_tb`, `cb_dct_tb`, `cr_dct_tb`
+## `y_dct_tb`, `cb_dct_tb`, `cr_dct_tb`
 ### Purpose
 Validate the 2D Discrete Cosine Transform for luminance and chrominance components. Checks pipeline operation, timing, and coefficient outputs.
 ### Test Cases
