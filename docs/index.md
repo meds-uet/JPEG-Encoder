@@ -28,7 +28,7 @@ This project implements a **hardware JPEG encoder** using **SystemVerilog**. It 
 ### Top-Level Block Diagram
 
 <div align="center">
-<img src="./images_design_diagrams/JPEG-Top-level-module.png" alt="JPEG Top-level Module" width="700" height="400">
+ <img src="./images_design_diagrams/JPEG-Top-level-module.png" alt="JPEG Top-level Module" width="700" height="400">
 </div>
 
 #### Inputs:
@@ -53,8 +53,9 @@ The output of the encoder is a 32-bit JPEG bitstream provided on the JPEG_bitstr
 ---
 
 ## Pipeline Architecture
+
 <div align="center">
-<img src="./docs/images_design_diagrams/JPEG-pipeline_diagram.png" alt="JPEG Pipeline Diagram" width="640" height="480">
+ <img src="./docs/images_design_diagrams/JPEG-pipeline_diagram.png" alt="JPEG Pipeline Diagram" width="640" height="480">
 </div>
 
 
@@ -65,7 +66,7 @@ The JPEG encoding pipeline begins its process with the `rgb2ycbcr` module, which
 ### `RGB2YCBCR`
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-rgb2ycrcb.png" width="640" height="500">
+<img src="./docs/images_design_diagrams/JPEG-rgb2ycrcb.png" alt="RGB to YCbCr Conversion Diagram" width="640" height="500">
 </div>
 
 The `rgb2ycbcr module` is the first processing block in the JPEG encoder pipeline, responsible for converting incoming 24-bit RGB pixel data {B[7:0], G[7:0], R[7:0]} into the YCbCr color space {Cr, Cb, Y} using the ITU-R BT.601 standard. This transformation separates luminance (Y) from chrominance (Cb and Cr) using weighted sums of the red, green, and blue components:
@@ -81,7 +82,7 @@ To implement this efficiently in hardware, all coefficients are scaled by 2¹³ 
 ### `*_dct`: DCT Modules
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-dct.png" width="600" height="580">
+<img src="./docs/images_design_diagrams/JPEG-dct.png" alt="JPEG DCT Block Diagram" width="600" height="580">
 </div>
 
 The `y_dct, cb_dct, and cr_dct modules` each perform a 2D Discrete Cosine Transform (DCT) on 8×8 blocks of image data corresponding to the Y (luminance), Cb (chroma blue), and Cr (chroma red) components in a JPEG encoder. This transformation shifts pixel data from the spatial domain to the frequency domain, enabling efficient compression. The computation follows the formula 
@@ -95,7 +96,7 @@ where T is the scaled DCT matrix (scaled by 2¹⁴ = 16384 for fixed-point preci
 ### `*_quantizer`: Quantization Modules
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-quantization.png" width="600" height="580">
+ <img src="./docs/images_design_diagrams/JPEG-quantization.png" alt="JPEG Quantization Diagram" width="600" height="580">
 </div>
 
 The `y_quantizer,cr_quantizer,cb_quantizer module` performs lossy compression by quantizing an 8×8 block of Y (luminance) DCT coefficients. Instead of dividing each coefficient by a quantization constant (which is computationally expensive in hardware), the module multiplies it with a precomputed reciprocal value scaled by 2¹² (4096). These reciprocal values (e.g., QQ1_1 = 4096 / Q1_1) are stored in a matrix and computed at compile time. The module operates in a 3-stage pipeline: first, sign-extending the 11-bit DCT input to 32 bits; second, multiplying with the scaled reciprocal; and third, performing a right-shift and rounding based on bit 11 of the result to finalize the quantized value. This rounding effectively removes the 2¹² scaling factor and ensures accurate fixed-point results. The final quantized output is a signed 11-bit value. 
@@ -105,7 +106,7 @@ The `y_quantizer,cr_quantizer,cb_quantizer module` performs lossy compression by
 ### `*_huff`: Huffman Encoding
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-huff.png" width="640" height="500">
+  <img src="./docs/images_design_diagrams/JPEG-huff.png" alt="JPEG Huffman Encoding Diagram" width="640" height="500">
 </div>
 
 The `y_huff, cb_huff, and cr_huff modules` perform JPEG-compliant Huffman encoding for the Y (luminance), Cb (chroma-blue), and Cr (chroma-red) channels, respectively. Each module operates in five stages: (1) extracting sign and magnitude of the quantized DCT coefficients, (2) applying run-length encoding (RLE) to compress sequences of zero-valued AC coefficients, (3) performing lookups in predefined JPEG Huffman tables, (4) packing the variable-length Huffman codes and amplitudes into 32-bit words, and (5) outputting the encoded data stream. For each 8×8 block, the DC coefficient is encoded first as a difference from the previous block’s DC value, followed by the AC coefficients traversed in zigzag order. Before Huffman encoding, the 8×8 quantized matrix is transposed to preserve left-to-right scan order across image blocks, compensating for the row–column operations used during DCT. Although the Huffman tables are customizable at compile-time, they are fixed during runtime. All possible Huffman codes should be included, even for small images, to avoid invalid encoding scenarios. These modules enable effective entropy coding, significantly reducing the size of the compressed JPEG output.
@@ -119,7 +120,7 @@ The `y_d_q_h, cb_d_q_h, and cr_d_q_h modules` each combine the DCT, quantizer, a
 ### Block Diagram
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-fsm.png" width="800" height="580">
+  <img src="./docs/images_design_diagrams/JPEG-fsm.png" alt="JPEG Encoder FSM Diagram" width="800" height="580">
 </div>
 
 The `pre_fifo module` serves as an organizational wrapper that connects the outputs from the `y_huff, cb_huff, and cr_huff modules`, along with the `rgb2ycbcr module`. This module itself does not introduce any additional logic—it simply groups these modules into a single unit.
