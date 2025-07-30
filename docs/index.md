@@ -140,14 +140,23 @@ Finally, the jpeg_out top-level module encapsulates both the fifo_out and ff_che
 
 <div align="center">
 
-| **State** | **Action**                             |
-| --------- | -------------------------------------- |
-| IDLE      | Waits for Y FIFO to be non-empty       |
-| READ_Y    | Reads 1 byte from Y FIFO               |
-| CHECK_FF  | If byte == 0xFF, set `insert_zero = 1` |
-| OUTPUT    | Outputs byte (and optionally 0x00)     |
-| READ_CB   | Reads from Cb FIFO                     |
-| READ_CR   | Reads from Cr FIFO                     |
+
++-----------+-----------------------------------------------------------+
+| State     | Action                                                    |
++===========+===========================================================+
+| IDLE      | Waits for Y FIFO to be non-empty                         |
++-----------+-----------------------------------------------------------+
+| READ_Y    | Reads 1 byte from Y FIFO                                 |
++-----------+-----------------------------------------------------------+
+| CHECK_FF  | If byte == 0xFF, set `insert_zero = 1`                   |
++-----------+-----------------------------------------------------------+
+| OUTPUT    | Outputs byte (and optionally 0x00)                       |
++-----------+-----------------------------------------------------------+
+| READ_CB   | Reads from Cb FIFO                                       |
++-----------+-----------------------------------------------------------+
+| READ_CR   | Reads from Cr FIFO                                       |
++-----------+-----------------------------------------------------------+
+
 
 </div>
 
