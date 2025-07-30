@@ -285,10 +285,14 @@ The testbench uses four structured input patterns to thoroughly test the quantiz
 ### Expected Outputs
 After applying inputs and enabling the module for one clock cycle, the testbench waits for the out_enable signal to assert (indicating pipeline completion). It then prints the input matrix, expected quantized values, and actual hardware outputs side-by-side for visual comparison
 
- *_quantizer:
+ ### *** *_quantizer:***
   
   <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="900" height="650">
+  </div>
+  
+  <div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_2_EO_CO.png" width="900" height="650">
   </div>
   
 ---
