@@ -23,7 +23,7 @@ This project implements a full JPEG compression pipeline using modern SystemVeri
 
 ## Documentation
 
-[[Documentation Status](https://meds-jpeg-docs.readthedocs.io/en/badge/?version=latest)](https://meds-jpeg-docs.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://meds-jpeg-docs.readthedocs.io/en/badge/?version=latest)](https://meds-jpeg-docs.readthedocs.io/en/latest/?badge=latest)
 
 ---
 
