@@ -3,7 +3,7 @@
 > **Hardware JPEG Encoder (SystemVerilog Implementation)**
 > Real-time, low-power RGB to JPEG bitstream converter for embedded systems
 >
-> 🗕️ *Last updated: July 22, 2025*
+> 🗕️ *Last updated: July 30, 2025*
 > © 2025 [Maktab-e-Digital Systems Lahore](https://github.com/meds-uet). Licensed under the Apache 2.0 License.
 
 ---
