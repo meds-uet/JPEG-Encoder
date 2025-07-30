@@ -237,34 +237,36 @@ Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommo
 
 ## 2. `*_dct:`
 ### 1. Purpose of Test Cases
-his testbench verifies the cr_dct module, which performs an 8×8 Discrete Cosine Transform (DCT) on image blocks as part of JPEG encoding. It drives 8-bit input samples into the DCT module, monitors the resulting signed 11-bit coefficients, and validates timing and output correctness.The testbench checks: Correct DCT coefficient generation for uniform, gradient, and pattern-based input blocks,Expected DC coefficient magnitudes for constant blocks (e.g., all 128 → DC ≈ 4096),Pipeline latency and output readiness signaled by output_enable.
+This testbench verifies the *_dct module, which performs an 8×8 Discrete Cosine Transform (DCT) on image blocks as part of JPEG encoding. It serially feeds 8-bit input pixels and observes 64 signed 11-bit DCT output coefficients. The test also tracks output_enable to confirm pipeline latency and output readiness.
 
 ### 2. Input Vectors
-The following input patterns are used to test a wide range of DCT behavior:
-- All 128 (8'h80) — Flat mid-gray block, expecting strong DC term.
-- All 64 (8'h40) — Lower gray level, DC expected ≈ 2048.
-- All 0s — Black block, expecting all-zero coefficients.
-- All 255s — White block, high DC value (≈1020 due to internal shifting).
-- Checkerboard — Alternating 0 and 255, strong high-frequency content.
-- Random Values — Simulates real image data, verifies stability.
-Each test feeds 64 samples serially with proper enable timing, and prints the resulting DCT matrix for visual verification.
-
+- All 128 (8'h80): Simulates a flat mid-gray block. Expected strong DC term ≈ 4096.
+- All 64 (8'h40): Darker uniform block. Expected DC ≈ 2048.
+- All 0 (8'h00): Fully black block. Expected DC = 0.
+- All 255 (8'hFF): Bright white block. Expected DC ≈ 1020 due to internal level shifting.
+- Checkerboard (alternating 0 and 255): High-frequency alternating pattern. Expected strong AC terms, DC = 0.
+- Random Values ($urandom_range(0, 255)): Simulates real-world noisy image data. Expected DC varies, used to verify functional stability.
+- Each pattern is fed serially (64 clock cycles) under active enable, simulating one 8×8 block.
+- 
  ### 3. Expected Output:
-Upon output_enable, the testbench prints: The DCT coefficient matrix in 8×8 layout, A status line indicating test pass and approximate DC coefficient match.
-
- ### ***y_huff***:
+Once processing is complete, output_enable goes high.
+The testbench prints:
+- The full 8×8 DCT coefficient matrix using $write formatting.
+- A status line summarizing timing and DC verification,
+  
+ ### ***y_dct***:
   
   <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="900" height="680">
   </div>
  
- ### ***y_huff***:
+ ### ***cr_dct***:
   
 <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_dct_EO_CO.png?raw=true" width="900" height="680">
 </div>
 
- ### ***y_huff***:
+ ### ***cb_dct***:
 
 <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_dct_EO_CO.png?raw=true" width="900" height="680">
