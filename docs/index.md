@@ -288,7 +288,7 @@ After applying inputs and enabling the module for one clock cycle, the testbench
  *_quantizer:
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="600" height="450">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="800" height="450">
   </div>
   
 ---
