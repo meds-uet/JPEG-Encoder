@@ -254,12 +254,6 @@ The testbench prints:
 - The full 8×8 DCT coefficient matrix using $write formatting.
 - A status line summarizing timing and DC verification,
   
- ### ***y_dct***:
-  
-  <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="900" height="680">
-  </div>
- 
  ### ***cr_dct***:
   
 <div align="center">
