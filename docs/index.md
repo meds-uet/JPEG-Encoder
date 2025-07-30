@@ -297,7 +297,7 @@ The test sequence includes:
 The expected output from the testbench includes confirmation of correct write and read sequences, along with validation that the FIFO becomes empty after all data is read.
 
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_32_EO_CO.png?raw=true" width="640" height="400">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_32_EO_CO.png?raw=true" width="900" height="680">
   </div>
 
 ---
@@ -319,7 +319,7 @@ Rollover Write Test:
 Read operations are synchronized using read_req and a wait on rdata_valid.This helps trace FIFO behavior, especially around skipped or inserted bubbles from the rollover_write mechanism.
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_ff_EO_CO.png?raw=true" width="640" height="400">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/sync_fifo_ff_EO_CO.png?raw=true" width="900" height="680">
   </div>
   
 ---
