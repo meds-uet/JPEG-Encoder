@@ -67,7 +67,7 @@ The JPEG encoding pipeline begins its process with the `rgb2ycbcr` module, which
 ### `RGB2YCBCR`
 
 <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-rgb2ycrcb.png" width="640" height="440">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_design_diagrams/JPEG-rgb2ycrcb.png" width="640" height="500">
 </div>
 
 The `rgb2ycbcr module` is the first processing block in the JPEG encoder pipeline, responsible for converting incoming 24-bit RGB pixel data {B[7:0], G[7:0], R[7:0]} into the YCbCr color space {Cr, Cb, Y} using the ITU-R BT.601 standard. This transformation separates luminance (Y) from chrominance (Cb and Cr) using weighted sums of the red, green, and blue components:
