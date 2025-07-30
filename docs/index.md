@@ -56,7 +56,7 @@ The output of the encoder is a 32-bit JPEG bitstream provided on the JPEG_bitstr
 
 
 <div align="center">
- <img src="./images_design_diagrams/JPEG-pipeline_diagram.png alt="JPEG Pipeline Diagram" width="700" height="800">
+ <img src="./images_design_diagrams/JPEG-pipeline_diagram.png" alt="JPEG Pipeline Diagram" width="700" height="800">
 </div>
 
 
