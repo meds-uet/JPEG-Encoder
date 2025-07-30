@@ -297,34 +297,44 @@ After applying inputs and enabling the module for one clock cycle, the testbench
   
 ---
 
-## `y_huff_tb`, `cb_huff_tb`, `cr_huff_tb`
-### Purpose
-Validate Huffman encoding of quantized DCT blocks for Y, Cb, Cr. Checks bitstream formation and control signaling.
-### Test Cases
-* Standard quantized input block with DC + AC coefficients
-* All-zero AC run
-* High magnitude DC offset
-### Input Vectors
-* Clock and Reset
-* `X11`–`X88`: 11-bit signed coefficients
-* `enable = 1` to trigger encoding
-### Expected Outputs
-* y_huff:
+## `tb_*_huff`:
+### 1. Purpose
+This testbench validates the functionality of the *_huff module, which performs Huffman encoding on an 8×8 block of quantized DCT coefficients for the components in JPEG compression. It ensures correct encoding of sparse DCT blocks, including proper handling of DC and AC coefficients, output bitstream generation, and end-of-block signaling.
+
+### 2.  Input Pattern
+Two test cases are included:
+Test Case 1 – Sparse DCT Block
+- Y11 = 50 (DC coefficient)
+- Y21 = 3, Y13 = 2 (non-zero AC coefficients)
+- All other coefficients are zero.
+Test Case 2 – New DC & AC Coefficients After Reset
+-Y11 = 100 (new DC)
+-Y21 = 5 (non-zero AC)
+-All others remain zero.
+Each test applies a reset, then enables the module for one cycle to start encoding. The simulation runs long enough to process all 64 inputs through the internal pipeline.
+  
+### 3. Expected Outputs
+For each test case, the monitor displays:The evolving state of data_ready, output_reg_count, end_of_block_output, and JPEG_bitstream.The encoded output should reflect the DC value followed by Huffman-encoded non-zero AC coefficients, terminated with an end-of-block symbol.
+
+ ### ***y_huff***:
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_huff_EO_CO.png?raw=true" width="640" height="360">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_huff_EO_CO.png?raw=true" width="640" height="380">
   </div>
 
-* cr_huff:
+ ### ***cr_huff***:
   
 <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_huff_EO_CO.png?raw=true" width="640" height="360">
 </div>
 
-*cb_huff:
+ ### ***cb_huff***:
 
 <div align="center">
   <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_huff_EO_CO.png?raw=true" width="640" height="360">
+</div>
+<div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_huff_2_EO_CO.png?raw=true" width="640" height="360">
 </div>
 
 ---
