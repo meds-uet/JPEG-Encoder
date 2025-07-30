@@ -12,7 +12,7 @@
 
 This project implements a **hardware JPEG encoder** using **SystemVerilog**. It compresses RGB image data following the standard JPEG pipeline:
 
-                        > **Color Conversion → DCT → Quantization → Huffman Coding → Bitstream Assembly**
+                               Color Conversion → DCT → Quantization → Huffman Coding → Bitstream Assembly 
 
 Designed for **real-time**, **low-power**, and **embedded platforms**, this encoder significantly reduces image size while preserving visual quality.
 
