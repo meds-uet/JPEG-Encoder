@@ -224,6 +224,7 @@ Fixed RGB Values:
 - (128, 128, 128) — Mid-gray
 Random RGB Values:
 Ten 24-bit RGB values are generated using $urandom_range(0, 255) to simulate general use cases and uncover hidden bugs.
+
  ### 3. Expected Output:
 Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommodate pipeline latency. The testbench checks for a valid enable_out and prints the YCbCr result in a readable format. This allows visual confirmation and debugging, and can be extended for automated comparisons with a golden reference model if needed.
 
@@ -269,36 +270,27 @@ Validate the 2D Discrete Cosine Transform for luminance and chrominance componen
 
 ---
 
-## `tb_y_quantizer`, `tb_cb_quantizer`, `tb_cr_quantizer`
+## `tb_*_quantizer`
 ### Purpose
-Test quantization logic for Y, Cb, and Cr DCT blocks. Ensures pipelined quantization with reciprocal quantization matrix is correctly applied.
-### Test Cases
-* Above diagonal: Large values (200, 210...)
-* Diagonal: Constant value 50
-* Below diagonal: Small signed values (-1, 0, 1)
-### Input Vectors
-* Clock and Reset
-* `Z[8][8]`: 11-bit signed DCT coefficients
-* `enable = 1` to start quantization
+The test cases are designed to confirm that the quantization logic correctly applies scaling and rounding to signed DCT coefficients. The expected outputs are computed using the same reciprocal-based method used in hardware: multiplying by (4096 / Q[i][j]), right-shifting by 12, and rounding toward zero. The goal is to validate accuracy, rounding behavior, and pipeline timing across various coefficient patterns.
+
+### Input Pattern
+The testbench uses four structured input patterns to thoroughly test the quantizer:
+- All 1023: Applies the maximum positive value (11'sd1023) to all matrix elements.
+- Ramp Pattern: Gradually increasing values from 0 to 63 across the matrix.
+- Checkerboard Pattern: Alternating +1023 and -1024 values to test signed rounding.
+- Random Values: 64 random signed 11-bit inputs in the range [-1024, +1023] for general-case validation.
+- These patterns are stored in the test_input matrix and applied to the Z input of the DUT.
+  
 ### Expected Outputs
-* y_quantizer:
+After applying inputs and enabling the module for one clock cycle, the testbench waits for the out_enable signal to assert (indicating pipeline completion). It then prints the input matrix, expected quantized values, and actual hardware outputs side-by-side for visual comparison
+
+ *_quantizer:
   
   <div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_quantizer_EO_CO.png?raw=true" width="600" height="450">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/quantizer_EO_CO.png" width="600" height="450">
   </div>
-
-* cr_quantizer:
   
-<div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cr_quantizer_EO_CO.png?raw=true" width="600" height="450">
-</div>
-
-*cb_quantizer:
-
-<div align="center">
-  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/cb_quantizer_EO_CO.png?raw=true" width="600" height="450">
-</div>
-
 ---
 
 ## `y_huff_tb`, `cb_huff_tb`, `cr_huff_tb`
