@@ -210,20 +210,27 @@ JPEG_Encoder/
 
 ##  `tb_rgb2ycrcb`
 
-### Purpose
-Verifies the `rgb2ycrcb` module that converts RGB input into YCbCr format using fixed-point arithmetic.
-### Test Cases
-* Red (255, 0, 0)
-* Green (0, 255, 0)
-* Blue (0, 0, 255)
-* White (255, 255, 255)
-* Black (0, 0, 0)
-* Gray (128, 128, 128)
-* Custom: (50, 100, 150)
-### Input Vectors
-* Clock and Reset
-* `data_in [23:0]`: `{B, G, R}` packed RGB
-* `enable`: Applied for 1 cycle per vector
+### 1. Purpose of Test Cases
+The testbench is designed to check the accuracy of color space conversion under common edge cases and validate robustness with random RGB inputs. It ensures proper pipeline behavior, rounding, and output timing of the rgb2ycrcb module.
+
+### 2. Input Vectors
+The testbench applies both fixed and random RGB values:
+Fixed RGB Values:
+- (0, 0, 0) — Black
+- (255, 255, 255) — White
+- (255, 0, 0) — Red
+- (0, 255, 0) — Green
+- (0, 0, 255) — Blue
+- (128, 128, 128) — Mid-gray
+Random RGB Values:
+Ten 24-bit RGB values are generated using $urandom_range(0, 255) to simulate general use cases and uncover hidden bugs.
+ ### 3. Expected Output:
+Each input is applied with a 1-cycle enable signal and a 3-cycle wait to accommodate pipeline latency. The testbench checks for a valid enable_out and prints the YCbCr result in a readable format. This allows visual confirmation and debugging, and can be extended for automated comparisons with a golden reference model if needed.
+
+  <div align="center">
+  <img src="https://github.com/meds-uet/JPEG-Encoder/blob/main/docs/images_testbench_EO_CO/y_dct_EO_CO.png?raw=true" width="640" height="360">
+  </div>
+
 
 ---
 
