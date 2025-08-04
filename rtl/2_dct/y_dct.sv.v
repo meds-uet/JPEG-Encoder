@@ -1,15 +1,16 @@
-
-
-/* This module converts the incoming Y data.
-The incoming data is unsigned 8 bits, so the data is in the range of 0-255
-Unlike a typical DCT, the data is not subtracted by 128 to center it around 0.
-It is only required for the first row, and instead of subtracting 128 from each
-pixel value, a total value can be subtracted at the end of the first row/column multiply,
-involving the 8 pixel values and the 8 DCT matrix values.
-For the other 7 rows of the DCT matrix, the values in each row add up to 0,
-so it is not necessary to subtract 128 from each Y, Cb, and Cr pixel value.
-Then the Discrete Cosine Transform is performed by multiplying the 8x8 pixel block values
-by the 8x8 DCT matrix. */
+// Copyright 2025 Maktab-e-Digital Systems Lahore.
+// Licensed under the Apache License, Version 2.0, see LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Description:
+//    This module converts the incoming Y data. The incoming data is unsigned 8 bits, so the data is in the range of 0-255
+//    Unlike a typical DCT, the data is not subtracted by 128 to center it around 0,pixel value, a total value can be subtracted at the end 
+//    of the first row/column multiply, involving the 8 pixel values and the 8 DCT matrix values.
+//    For the other 7 rows of the DCT matrix, the values in each row add up to 0,
+//    so it is not necessary to subtract 128 from each Y, Cb, and Cr pixel value.
+//
+// Author:Rameen
+// Date:1st August,2025.
 
 `timescale 1ns / 100ps
 
@@ -37,9 +38,7 @@ module y_dct (
     output logic         output_enable
 );
 
-// ============================================================================
 // DCT Matrix Constants (Q1.15 scaled fixed point or integer constants)
-// ============================================================================
 localparam int T1  = 5793;  // ≈ 0.3536
 localparam int T21 = 8035;  // ≈ 0.4904
 localparam int T22 = 6811;  // ≈ 0.4157
@@ -788,5 +787,4 @@ begin
 		enable_1 <= enable;
 		end
 end
-
 endmodule
