@@ -22,7 +22,7 @@
 // Date: 25th July, 2025
 
 `timescale 1ns / 100ps
-`include "quantizer_constants.sv"
+`include "quantizer_constant.sv"
 
 module tb_cr_quantizer;
 
@@ -129,3 +129,4 @@ module tb_cr_quantizer;
     $finish;
   end
 endmodule
+
