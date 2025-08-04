@@ -14,7 +14,7 @@
 // Date:11th July,2025.
 
 `timescale 1ns / 100ps
-`include "quantizer_constants.svh"
+`include "quantizer_constant.svh"
 
 module y_quantizer (
     input  logic clk, rst, enable,
