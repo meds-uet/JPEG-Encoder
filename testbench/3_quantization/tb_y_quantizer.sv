@@ -21,7 +21,7 @@
 // Date: 24th July, 2025
 
 `timescale 1ns / 100ps
-`include "quantizer_constants.svh"
+`include "quantizer_constant.svh"
 
 module tb_y_quantizer;
 
@@ -136,3 +136,4 @@ module tb_y_quantizer;
     $finish;
   end
 endmodule
+
